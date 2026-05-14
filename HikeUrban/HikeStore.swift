@@ -14,6 +14,7 @@ struct CompletedHike: Identifiable, Codable {
     var elevationGainFt: Double
     var durationSeconds: Int
     var floorsAscended: Int
+    var steps: Int
     var mode: RouteMode
     var routeCoordinates: [RouteCoordinate]
     var mapSnapshotData: Data?
@@ -61,6 +62,10 @@ class HikeStore: ObservableObject {
         completedHikes.map(\.floorsAscended).reduce(0, +)
     }
 
+    var totalSteps: Int {
+        completedHikes.map(\.steps).reduce(0, +)
+    }
+
     var currentStreak: Int {
         guard !completedHikes.isEmpty else { return 0 }
         let calendar = Calendar.current
@@ -89,7 +94,7 @@ class HikeStore: ObservableObject {
 
     // MARK: Mutations
 
-    func add(from session: HikeSession, floorsAscended: Int) {
+    func add(from session: HikeSession, floorsAscended: Int, steps: Int) {
         let coords = session.locations.map {
             RouteCoordinate(
                 latitude: $0.coordinate.latitude,
@@ -106,6 +111,7 @@ class HikeStore: ObservableObject {
             elevationGainFt: session.elevationGainFt,
             durationSeconds: Int((session.endTime ?? Date()).timeIntervalSince(session.startTime)),
             floorsAscended: floorsAscended,
+            steps: steps,
             mode: session.mode,
             routeCoordinates: coords,
             mapSnapshotData: nil

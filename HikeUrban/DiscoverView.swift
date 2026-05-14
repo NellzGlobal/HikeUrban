@@ -5,7 +5,7 @@ import MapKit
 // Editor's Pick is live. Surprise Me is earmarked — needs user preference data.
 
 struct DiscoverView: View {
-    let routes = HikeRoute.detroitSamples
+    let routes = HikeRoute.featuredRoutes
     @State private var showSurpriseMe = false
     @State private var surpriseRoute: HikeRoute?
 
@@ -30,7 +30,7 @@ struct DiscoverView: View {
                         SectionHeader(
                             icon: "star.circle.fill",
                             title: "Editor's Picks",
-                            subtitle: "Curated by the Detroit Urban Hike team"
+                            subtitle: "Curated routes to get you exploring"
                         )
                         .padding(.horizontal)
 

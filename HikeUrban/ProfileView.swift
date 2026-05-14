@@ -102,7 +102,7 @@ struct ProfileView: View {
                                 Text("No hikes yet")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
-                                Text("Head to the Record tab to log your first Detroit hike.")
+                                Text("Head to the Record tab to log your first urban hike.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.center)
@@ -111,7 +111,7 @@ struct ProfileView: View {
                             .padding(32)
                         } else {
                             ForEach(hikeStore.recentHikes) { hike in
-                                CompletedHikeRow(hike: hike)
+                                HikePathCard(hike: hike)
                                     .padding(.horizontal)
                             }
                         }
@@ -177,42 +177,91 @@ struct AvatarView: View {
     }
 }
 
-// MARK: - Completed Hike Row
+// MARK: - Hike Path Card
 
-struct CompletedHikeRow: View {
+struct HikePathCard: View {
     let hike: CompletedHike
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: hike.mode.icon)
-                .font(.title3)
-                .foregroundColor(.orange)
-                .frame(width: 36)
+        VStack(spacing: 0) {
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(hike.name)
-                    .font(.subheadline).fontWeight(.medium)
-                    .lineLimit(1)
-                HStack(spacing: 10) {
-                    Text(String(format: "%.2f mi", hike.distanceMiles))
-                    Text("·")
-                    Text("\(Int(hike.elevationGainFt)) ft")
-                    Text("·")
-                    Text(hike.durationFormatted)
+            // Map snapshot header
+            Group {
+                if let img = hike.mapImage {
+                    Image(uiImage: img)
+                        .resizable()
+                        .scaledToFill()
+                } else if !hike.routeCoordinates.isEmpty {
+                    // Snapshot still generating
+                    ZStack {
+                        Color(.secondarySystemBackground)
+                        ProgressView()
+                    }
+                } else {
+                    // No GPS data recorded
+                    ZStack {
+                        Color(.secondarySystemBackground)
+                        Image(systemName: hike.mode.icon)
+                            .font(.system(size: 36))
+                            .foregroundColor(.orange.opacity(0.4))
+                    }
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
+            }
+            .frame(height: 160)
+            .clipped()
+            .overlay(alignment: .topLeading) {
+                Label(hike.mode.rawValue, systemImage: hike.mode.icon)
+                    .font(.caption2).fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .padding(8)
             }
 
-            Spacer()
+            // Stats footer
+            VStack(spacing: 6) {
+                HStack {
+                    Text(hike.name)
+                        .font(.subheadline).fontWeight(.semibold)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(hike.dateFormatted)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
 
-            Text(hike.dateFormatted)
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                HStack(spacing: 0) {
+                    MiniStat(value: String(format: "%.2f", hike.distanceMiles), unit: "mi")
+                    Divider().frame(height: 28).padding(.horizontal, 8)
+                    MiniStat(value: "\(Int(hike.elevationGainFt))", unit: "ft gain")
+                    Divider().frame(height: 28).padding(.horizontal, 8)
+                    MiniStat(value: hike.durationFormatted, unit: "time")
+                    if hike.floorsAscended > 0 {
+                        Divider().frame(height: 28).padding(.horizontal, 8)
+                        MiniStat(value: "\(hike.floorsAscended)", unit: "floors")
+                    }
+                    Spacer()
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color(.systemBackground))
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 2)
+    }
+}
+
+private struct MiniStat: View {
+    let value: String
+    let unit: String
+
+    var body: some View {
+        VStack(spacing: 1) {
+            Text(value).font(.subheadline).fontWeight(.bold).monospacedDigit()
+            Text(unit).font(.caption2).foregroundColor(.secondary)
+        }
     }
 }
 
@@ -226,12 +275,6 @@ struct EditProfileSheet: View {
     @State private var neighborhood: String = ""
     @State private var bio: String = ""
     @State private var selectedPhoto: PhotosPickerItem?
-
-    let detroitNeighborhoods = [
-        "Downtown", "Midtown", "Corktown", "Eastern Market",
-        "New Center", "Rivertown", "Greektown", "Mexicantown",
-        "North End", "Woodbridge", "Other"
-    ]
 
     var body: some View {
         NavigationStack {
@@ -261,13 +304,7 @@ struct EditProfileSheet: View {
                 }
 
                 Section("Home Neighbourhood") {
-                    Picker("Neighbourhood", selection: $neighborhood) {
-                        Text("None").tag("")
-                        ForEach(detroitNeighborhoods, id: \.self) { n in
-                            Text(n).tag(n)
-                        }
-                    }
-                    .pickerStyle(.menu)
+                    TextField("e.g. Midtown, Brooklyn, Shoreditch…", text: $neighborhood)
                 }
             }
             .navigationTitle("Edit Profile")

@@ -1,7 +1,7 @@
 import Foundation
 
 extension HikeRoute {
-    static let detroitSamples: [HikeRoute] = [
+    static let featuredRoutes: [HikeRoute] = [
 
         // 1. Riverfront Walk
         HikeRoute(

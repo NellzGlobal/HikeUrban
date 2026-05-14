@@ -4,6 +4,7 @@ import MapKit
 struct RecordView: View {
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var hikeStore: HikeStore
+    @EnvironmentObject var gcManager: GameCenterManager
     @StateObject private var staircaseManager = StaircaseManager()
 
     @State private var selectedMode: RouteMode = .walk
@@ -91,17 +92,26 @@ struct RecordView: View {
             }
             .navigationTitle("Record")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                locationManager.requestPermission()
+            }
         }
         .sheet(isPresented: $showSaveSheet) {
             SaveHikeSheet(
                 session: locationManager.currentSession,
                 hikeName: $hikeName,
-                floorsAscended: staircaseManager.floorsAscended
+                floorsAscended: staircaseManager.floorsAscended,
+                steps: staircaseManager.stepCount
             ) { shouldSave in
                 if shouldSave, let session = locationManager.currentSession {
                     var named = session
                     named.name = hikeName
-                    hikeStore.add(from: named, floorsAscended: staircaseManager.floorsAscended)
+                    hikeStore.add(
+                        from: named,
+                        floorsAscended: staircaseManager.floorsAscended,
+                        steps: staircaseManager.stepCount
+                    )
+                    gcManager.submitScore(hikeStore.totalSteps)
                 }
                 locationManager.currentSession = nil
                 locationManager.elapsedSeconds = 0
@@ -112,7 +122,7 @@ struct RecordView: View {
     private var defaultHikeName: String {
         let f = DateFormatter()
         f.dateFormat = "MMM d"
-        return "Detroit \(selectedMode.rawValue) · \(f.string(from: Date()))"
+        return "Urban \(selectedMode.rawValue) · \(f.string(from: Date()))"
     }
 }
 
@@ -153,18 +163,19 @@ struct ModePickerBar: View {
 struct LiveMapView: View {
     @EnvironmentObject var locationManager: LocationManager
 
-    @State private var position: MapCameraPosition = .region(
-        MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 42.3314, longitude: -83.0458),
-            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-        )
-    )
+    @State private var position: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
 
     var body: some View {
         Map(position: $position) {
             UserAnnotation()
+            // Raw GPS path — shows immediately, faint, covers the unsnapped leading segment
             if let session = locationManager.currentSession, session.locations.count > 1 {
                 MapPolyline(coordinates: session.locations.map(\.coordinate))
+                    .stroke(Color.orange.opacity(0.3), lineWidth: 3)
+            }
+            // Road-snapped path — solid orange, trails ~75m behind current position
+            if locationManager.snappedPath.count > 1 {
+                MapPolyline(coordinates: locationManager.snappedPath)
                     .stroke(Color.orange, lineWidth: 4)
             }
         }
@@ -236,6 +247,7 @@ struct SaveHikeSheet: View {
     let session: HikeSession?
     @Binding var hikeName: String
     let floorsAscended: Int
+    let steps: Int
     let onDismiss: (Bool) -> Void
     @Environment(\.dismiss) var dismiss
 
@@ -250,6 +262,7 @@ struct SaveHikeSheet: View {
                         LabeledContent("Distance",       value: String(format: "%.2f miles", s.distanceMiles))
                         LabeledContent("Elevation Gain", value: String(format: "%.0f ft", s.elevationGainFt))
                         LabeledContent("Duration",       value: s.durationFormatted)
+                        LabeledContent("Steps",          value: steps > 0 ? "\(steps.formatted())" : "—")
                         LabeledContent("Floors Climbed", value: "\(floorsAscended)")
                     }
                 }

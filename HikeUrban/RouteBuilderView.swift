@@ -6,6 +6,9 @@ import MapKit
 struct RouteBuilderView: View {
     @State private var mode: BuilderMode = .draw
     @State private var waypoints: [CLLocationCoordinate2D] = []
+    @State private var snappedCoords: [CLLocationCoordinate2D] = []   // road-following path
+    @State private var segmentLengths: [Int] = []                     // coords per segment for undo
+    @State private var isSnapping = false
     @State private var routeName = ""
     @State private var selectedDifficulty: HikeRoute.Difficulty = .easy
     @State private var selectedModes: Set<RouteMode> = [.walk]
@@ -14,12 +17,7 @@ struct RouteBuilderView: View {
     @State private var selectedNeighborhood: DetroitNeighborhood?
     @State private var showNeighborhoodDetail = false
 
-    @State private var position: MapCameraPosition = .region(
-        MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 42.3505, longitude: -83.0558),
-            span: MKCoordinateSpan(latitudeDelta: 0.07, longitudeDelta: 0.07)
-        )
-    )
+    @State private var position: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
 
     enum BuilderMode: String, CaseIterable {
         case draw          = "Draw Route"
@@ -57,8 +55,8 @@ struct RouteBuilderView: View {
                                         .shadow(radius: 2)
                                     }
                                 }
-                                if waypoints.count > 1 {
-                                    MapPolyline(coordinates: waypoints)
+                                if snappedCoords.count > 1 {
+                                    MapPolyline(coordinates: snappedCoords)
                                         .stroke(Color.orange, lineWidth: 3)
                                 }
                             }
@@ -93,9 +91,16 @@ struct RouteBuilderView: View {
                             }
                         }
                         .onTapGesture { screenPoint in
-                            guard mode == .draw else { return }
+                            guard mode == .draw, !isSnapping else { return }
                             if let coord = proxy.convert(screenPoint, from: .local) {
-                                waypoints.append(coord)
+                                if waypoints.isEmpty {
+                                    waypoints.append(coord)
+                                    snappedCoords.append(coord)
+                                } else {
+                                    let from = waypoints.last!
+                                    waypoints.append(coord)
+                                    Task { await snapSegment(from: from, to: coord) }
+                                }
                             }
                         }
                     }
@@ -103,18 +108,35 @@ struct RouteBuilderView: View {
                     // Draw mode floating controls
                     if mode == .draw && !waypoints.isEmpty {
                         VStack(spacing: 10) {
-                            Button {
-                                waypoints.removeLast()
-                            } label: {
-                                Image(systemName: "arrow.uturn.backward")
-                                    .mapControlButton(color: .primary, bg: Color(.systemBackground))
-                            }
+                            if isSnapping {
+                                ProgressView()
+                                    .frame(width: 40, height: 40)
+                                    .background(Color(.systemBackground))
+                                    .clipShape(Circle())
+                                    .shadow(radius: 3)
+                            } else {
+                                Button {
+                                    waypoints.removeLast()
+                                    if waypoints.isEmpty {
+                                        snappedCoords.removeAll()
+                                        segmentLengths.removeAll()
+                                    } else if let last = segmentLengths.last {
+                                        snappedCoords.removeLast(last)
+                                        segmentLengths.removeLast()
+                                    }
+                                } label: {
+                                    Image(systemName: "arrow.uturn.backward")
+                                        .mapControlButton(color: .primary, bg: Color(.systemBackground))
+                                }
 
-                            Button {
-                                waypoints.removeAll()
-                            } label: {
-                                Image(systemName: "trash")
-                                    .mapControlButton(color: .red, bg: Color(.systemBackground))
+                                Button {
+                                    waypoints.removeAll()
+                                    snappedCoords.removeAll()
+                                    segmentLengths.removeAll()
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .mapControlButton(color: .red, bg: Color(.systemBackground))
+                                }
                             }
                         }
                         .padding(.trailing, 12)
@@ -128,17 +150,18 @@ struct RouteBuilderView: View {
                     DrawBottomPanel(
                         waypointCount: waypoints.count,
                         distance: estimatedDistance,
+                        isSnapping: isSnapping,
                         onSave: { showSaveSheet = true }
                     )
                 } else {
                     NeighbourhoodLegend()
                 }
             }
-            .navigationTitle(mode == .draw ? "Draw a Route" : "Walkable Detroit")
+            .navigationTitle(mode == .draw ? "Draw a Route" : "Detroit Walkability")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showSaveSheet) {
                 SaveRouteSheet(
-                    waypoints: waypoints,
+                    waypoints: snappedCoords,
                     routeName: $routeName,
                     difficulty: $selectedDifficulty,
                     modes: $selectedModes,
@@ -146,6 +169,8 @@ struct RouteBuilderView: View {
                     onSave: {
                         showSavedConfirmation = true
                         waypoints.removeAll()
+                        snappedCoords.removeAll()
+                        segmentLengths.removeAll()
                     }
                 )
             }
@@ -168,14 +193,44 @@ struct RouteBuilderView: View {
     }
 
     private var estimatedDistance: Double {
-        guard waypoints.count > 1 else { return 0 }
+        guard snappedCoords.count > 1 else { return 0 }
         var total = 0.0
-        for i in 1..<waypoints.count {
-            let a = CLLocation(latitude: waypoints[i-1].latitude, longitude: waypoints[i-1].longitude)
-            let b = CLLocation(latitude: waypoints[i].latitude, longitude: waypoints[i].longitude)
+        for i in 1..<snappedCoords.count {
+            let a = CLLocation(latitude: snappedCoords[i-1].latitude, longitude: snappedCoords[i-1].longitude)
+            let b = CLLocation(latitude: snappedCoords[i].latitude, longitude: snappedCoords[i].longitude)
             total += b.distance(from: a)
         }
         return total / 1609.34
+    }
+
+    private func snapSegment(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D) async {
+        isSnapping = true
+        defer { isSnapping = false }
+
+        let request = MKDirections.Request()
+        if #available(iOS 26.0, *) {
+            request.source      = MKMapItem(location: CLLocation(latitude: start.latitude, longitude: start.longitude), address: nil)
+            request.destination = MKMapItem(location: CLLocation(latitude: end.latitude, longitude: end.longitude), address: nil)
+        } else {
+            request.source      = MKMapItem(placemark: MKPlacemark(coordinate: start))
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: end))
+        }
+        request.transportType = .walking
+        request.requestsAlternateRoutes = false
+
+        do {
+            let response = try await MKDirections(request: request).calculate()
+            if let route = response.routes.first {
+                var coords = [CLLocationCoordinate2D](repeating: .init(), count: route.polyline.pointCount)
+                route.polyline.getCoordinates(&coords, range: NSRange(location: 0, length: route.polyline.pointCount))
+                segmentLengths.append(coords.count)
+                snappedCoords.append(contentsOf: coords)
+            }
+        } catch {
+            // Fallback: straight line to the tapped point
+            segmentLengths.append(1)
+            snappedCoords.append(end)
+        }
     }
 }
 
@@ -198,6 +253,7 @@ extension Image {
 struct DrawBottomPanel: View {
     let waypointCount: Int
     let distance: Double
+    let isSnapping: Bool
     let onSave: () -> Void
 
     var body: some View {
@@ -219,8 +275,12 @@ struct DrawBottomPanel: View {
                             .font(.caption).foregroundColor(.secondary)
                     }
                     VStack(spacing: 2) {
-                        Text(String(format: "%.2f", distance))
-                            .font(.title2).fontWeight(.bold)
+                        if isSnapping {
+                            ProgressView().scaleEffect(0.8)
+                        } else {
+                            Text(String(format: "%.2f", distance))
+                                .font(.title2).fontWeight(.bold)
+                        }
                         Text("miles")
                             .font(.caption).foregroundColor(.secondary)
                     }
@@ -231,10 +291,10 @@ struct DrawBottomPanel: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 10)
-                            .background(waypointCount < 2 ? Color.gray : Color.orange)
+                            .background(waypointCount < 2 || isSnapping ? Color.gray : Color.orange)
                             .cornerRadius(10)
                     }
-                    .disabled(waypointCount < 2)
+                    .disabled(waypointCount < 2 || isSnapping)
                 }
             }
         }

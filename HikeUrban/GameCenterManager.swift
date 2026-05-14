@@ -1,6 +1,7 @@
 import Foundation
 import GameKit
 import UIKit
+import Combine
 
 // MARK: - Lightweight entry for SwiftUI
 
@@ -88,13 +89,21 @@ class GameCenterManager: ObservableObject {
     // MARK: - Present native UI
 
     func presentFullLeaderboard() {
-        let vc = GKGameCenterViewController(
-            leaderboardID: Self.leaderboardID,
-            playerScope: .global,
-            timeScope: .allTime
-        )
-        vc.gameCenterDelegate = _GCDelegate.shared
-        presentOnKeyWindow(vc)
+        if #available(iOS 26.0, *) {
+            GKAccessPoint.shared.trigger(
+                leaderboardID: Self.leaderboardID,
+                playerScope: .global,
+                timeScope: .allTime
+            )
+        } else {
+            let vc = GKGameCenterViewController(
+                leaderboardID: Self.leaderboardID,
+                playerScope: .global,
+                timeScope: .allTime
+            )
+            vc.gameCenterDelegate = _GCDelegate.shared
+            presentOnKeyWindow(vc)
+        }
     }
 
     private func presentOnKeyWindow(_ vc: UIViewController) {
@@ -109,8 +118,9 @@ class GameCenterManager: ObservableObject {
     }
 }
 
-// MARK: - GKGameCenterControllerDelegate (singleton helper)
+// MARK: - GKGameCenterControllerDelegate (singleton helper, iOS < 26 only)
 
+@available(iOS, deprecated: 26.0)
 private class _GCDelegate: NSObject, GKGameCenterControllerDelegate {
     static let shared = _GCDelegate()
     func gameCenterViewControllerDidFinish(_ vc: GKGameCenterViewController) {

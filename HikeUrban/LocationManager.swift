@@ -109,8 +109,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
         Task { @MainActor in
             let request = MKDirections.Request()
-            request.source               = MKMapItem(placemark: MKPlacemark(coordinate: from))
-            request.destination          = MKMapItem(placemark: MKPlacemark(coordinate: to))
+            if #available(iOS 26.0, *) {
+                request.source      = MKMapItem(location: CLLocation(latitude: from.latitude, longitude: from.longitude), address: nil)
+                request.destination = MKMapItem(location: CLLocation(latitude: to.latitude, longitude: to.longitude), address: nil)
+            } else {
+                request.source      = MKMapItem(placemark: MKPlacemark(coordinate: from))
+                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: to))
+            }
             request.transportType        = .walking
             request.requestsAlternateRoutes = false
 

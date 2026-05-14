@@ -2,19 +2,14 @@ import SwiftUI
 import MapKit
 
 struct ExploreView: View {
-    @State private var allRoutes    = HikeRoute.detroitSamples
+    @State private var allRoutes    = HikeRoute.featuredRoutes
     @State private var selectedMode: RouteMode? = nil
     @State private var showOnlyAccessible  = false
     @State private var showOnlyAfterDark   = false
     @State private var selectedRoute: HikeRoute?
     @State private var showDetail = false
 
-    @State private var position: MapCameraPosition = .region(
-        MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 42.3505, longitude: -83.0558),
-            span: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
-        )
-    )
+    @State private var position: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
 
     var filteredRoutes: [HikeRoute] {
         allRoutes.filter { route in
@@ -124,7 +119,7 @@ struct ExploreView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Detroit Hikes")
+            .navigationTitle("Featured Routes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -134,10 +129,7 @@ struct ExploreView: View {
                             selectedMode = nil
                             showOnlyAccessible = false
                             showOnlyAfterDark = false
-                            position = .region(MKCoordinateRegion(
-                                center: CLLocationCoordinate2D(latitude: 42.3505, longitude: -83.0558),
-                                span: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
-                            ))
+                            position = .userLocation(followsHeading: false, fallback: .automatic)
                         }
                     } label: {
                         Image(systemName: "arrow.counterclockwise")
