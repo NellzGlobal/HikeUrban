@@ -1,24 +1,52 @@
-//
-//  ContentView.swift
-//  HikeUrban
-//
-//  Created by Dornell Mister on 5/12/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+    @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var hikeStore: HikeStore
+    @EnvironmentObject var profile: UserProfile
 
-#Preview {
-    ContentView()
+    @State private var selectedTab = 0
+    @State private var showProfileSetup = false
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+
+            ExploreView()
+                .tabItem { Label("Explore",   systemImage: "map") }
+                .tag(0)
+
+            DiscoverView()
+                .tabItem { Label("Discover",  systemImage: "star.circle") }
+                .tag(1)
+
+            RecordView()
+                .tabItem { Label("Record",    systemImage: "record.circle") }
+                .tag(2)
+
+            RouteBuilderView()
+                .tabItem { Label("Build",     systemImage: "pencil.and.ruler") }
+                .tag(3)
+
+            SocialView()
+                .tabItem { Label("Community", systemImage: "person.2") }
+                .tag(4)
+
+            ProfileView()
+                .tabItem { Label("Profile",   systemImage: "person.circle") }
+                .tag(5)
+        }
+        .accentColor(.orange)
+        .onAppear {
+            locationManager.requestPermission()
+            if !profile.isSetUp {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    showProfileSetup = true
+                }
+            }
+        }
+        .sheet(isPresented: $showProfileSetup) {
+            EditProfileSheet()
+                .environmentObject(profile)
+        }
+    }
 }
