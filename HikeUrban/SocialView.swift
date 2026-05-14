@@ -2,7 +2,6 @@ import SwiftUI
 import GameKit
 
 // MARK: - Social View
-// Leaderboards are structural/ready. Group hikes earmarked — needs backend + auth.
 
 struct SocialView: View {
     @State private var selectedTab = 0
@@ -57,7 +56,6 @@ struct LeaderboardView: View {
         LeaderboardEntry(rank: 0, name: "Devon S.",   neighborhood: "", milesThisMonth: 18.9, floorsClimbed: 143, steps: 38_100, isCurrentUser: false),
     ]
 
-    // Real GC entries mapped to our display type
     private var gcLeaderboardEntries: [LeaderboardEntry] {
         gcManager.entries.map { e in
             LeaderboardEntry(rank: e.rank, name: e.displayName, neighborhood: "",
@@ -68,8 +66,7 @@ struct LeaderboardView: View {
 
     private var localEntries: [LeaderboardEntry] {
         let userName = profile.displayName.isEmpty ? "You" : profile.displayName
-        let hood     = profile.homeNeighborhood.isEmpty ? "Detroit" : profile.homeNeighborhood
-        let me = LeaderboardEntry(rank: 0, name: userName, neighborhood: hood,
+        let me = LeaderboardEntry(rank: 0, name: userName, neighborhood: profile.homeNeighborhood,
                                   milesThisMonth: hikeStore.totalMiles,
                                   floorsClimbed: hikeStore.totalFloorsClimbed,
                                   steps: hikeStore.totalSteps, isCurrentUser: true)
@@ -228,7 +225,6 @@ struct PodiumSlot: View {
             Text(label)
                 .font(.caption2)
                 .foregroundColor(.secondary)
-
             RoundedRectangle(cornerRadius: 8)
                 .fill(entry.isCurrentUser ? Color.orange.opacity(0.35) : Color.orange.opacity(0.2))
                 .frame(height: height)
@@ -263,9 +259,11 @@ struct LeaderboardRow: View {
                 Text(entry.name)
                     .font(.subheadline)
                     .fontWeight(entry.isCurrentUser ? .bold : .regular)
-                Text(entry.neighborhood)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if !entry.neighborhood.isEmpty {
+                    Text(entry.neighborhood)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
 
             Spacer()
@@ -288,7 +286,6 @@ struct GroupHikesView: View {
         ScrollView {
             VStack(spacing: 20) {
 
-                // Earmark notice
                 HStack {
                     Image(systemName: "hammer.fill")
                         .foregroundColor(.orange)
@@ -302,7 +299,6 @@ struct GroupHikesView: View {
                 .cornerRadius(10)
                 .padding(.horizontal)
 
-                // Preview cards (static)
                 ForEach(GroupHike.samples) { hike in
                     GroupHikeCard(hike: hike)
                         .padding(.horizontal)
@@ -383,7 +379,7 @@ struct GroupHikeCard: View {
     }
 }
 
-// MARK: - Activity Feed (stub)
+// MARK: - Activity Feed
 
 struct ActivityFeedView: View {
     var body: some View {
