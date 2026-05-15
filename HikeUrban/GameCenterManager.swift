@@ -17,7 +17,7 @@ struct GCEntry: Identifiable {
 
 class GameCenterManager: ObservableObject {
 
-    static let leaderboardID = "com.hikeUrban.totalSteps"
+    static let leaderboardID = "RoadRunner"
 
     @Published var isAuthenticated = false
     @Published var isLoading       = false

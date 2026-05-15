@@ -1,5 +1,6 @@
 import Foundation
 import CoreLocation
+import SwiftUI
 
 // MARK: - Route Mode
 
@@ -189,6 +190,239 @@ struct RouteCoordinate: Codable {
     let latitude: Double
     let longitude: Double
     let elevationFt: Double
+}
+
+// MARK: - Walkable Neighbourhood (city-agnostic)
+
+struct WalkableNeighborhood: Identifiable {
+    let id = UUID()
+    let name: String
+    let walkScore: Int
+    let coordinates: [CLLocationCoordinate2D]
+    let highlights: [String]
+    let notes: String
+
+    var center: CLLocationCoordinate2D {
+        let lat = coordinates.map(\.latitude).reduce(0, +) / Double(coordinates.count)
+        let lon = coordinates.map(\.longitude).reduce(0, +) / Double(coordinates.count)
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+
+    var walkabilityColor: Color {
+        switch walkScore {
+        case 80...100: return .green
+        case 60...79:  return .yellow
+        case 40...59:  return .orange
+        default:       return .red
+        }
+    }
+
+    var walkabilityLabel: String {
+        switch walkScore {
+        case 80...100: return "Walker's Paradise"
+        case 60...79:  return "Very Walkable"
+        case 40...59:  return "Walkable"
+        default:       return "Car-Dependent"
+        }
+    }
+
+    var walkabilityEmoji: String {
+        switch walkScore {
+        case 80...100: return "🟢"
+        case 60...79:  return "🟡"
+        case 40...59:  return "🟠"
+        default:       return "🔴"
+        }
+    }
+}
+
+// MARK: - Featured City
+
+struct FeaturedCity: Identifiable {
+    let id: String
+    let name: String
+    let state: String
+    let emoji: String
+    let tagline: String
+    let center: CLLocationCoordinate2D
+    var routes: [HikeRoute]
+    let neighborhoods: [WalkableNeighborhood]
+    var isUserCreated: Bool = false
+}
+
+// MARK: - FeaturedCity Codable (custom: CLLocationCoordinate2D isn't Codable)
+
+extension FeaturedCity: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case id, name, state, emoji, tagline, lat, lon, routes, neighborhoods, isUserCreated
+    }
+
+    init(from decoder: Decoder) throws {
+        let c     = try decoder.container(keyedBy: CodingKeys.self)
+        id            = try c.decode(String.self,               forKey: .id)
+        name          = try c.decode(String.self,               forKey: .name)
+        state         = try c.decode(String.self,               forKey: .state)
+        emoji         = try c.decode(String.self,               forKey: .emoji)
+        tagline       = try c.decode(String.self,               forKey: .tagline)
+        let lat       = try c.decode(Double.self,               forKey: .lat)
+        let lon       = try c.decode(Double.self,               forKey: .lon)
+        center        = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        routes        = try c.decode([HikeRoute].self,          forKey: .routes)
+        neighborhoods = try c.decode([WalkableNeighborhood].self, forKey: .neighborhoods)
+        isUserCreated = try c.decodeIfPresent(Bool.self,        forKey: .isUserCreated) ?? false
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id,                 forKey: .id)
+        try c.encode(name,               forKey: .name)
+        try c.encode(state,              forKey: .state)
+        try c.encode(emoji,              forKey: .emoji)
+        try c.encode(tagline,            forKey: .tagline)
+        try c.encode(center.latitude,    forKey: .lat)
+        try c.encode(center.longitude,   forKey: .lon)
+        try c.encode(routes,             forKey: .routes)
+        try c.encode(neighborhoods,      forKey: .neighborhoods)
+        try c.encode(isUserCreated,      forKey: .isUserCreated)
+    }
+}
+
+// MARK: - WalkableNeighborhood Codable (custom: stores coordinates as [[Double]])
+
+extension WalkableNeighborhood: Codable {
+    private enum CodingKeys: String, CodingKey { case name, walkScore, coordinatePairs, highlights, notes }
+
+    init(from decoder: Decoder) throws {
+        let c      = try decoder.container(keyedBy: CodingKeys.self)
+        name       = try c.decode(String.self,    forKey: .name)
+        walkScore  = try c.decode(Int.self,        forKey: .walkScore)
+        highlights = try c.decode([String].self,  forKey: .highlights)
+        notes      = try c.decode(String.self,    forKey: .notes)
+        let pairs  = try c.decode([[Double]].self, forKey: .coordinatePairs)
+        coordinates = pairs.map { CLLocationCoordinate2D(latitude: $0[0], longitude: $0[1]) }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(name,       forKey: .name)
+        try c.encode(walkScore,  forKey: .walkScore)
+        try c.encode(highlights, forKey: .highlights)
+        try c.encode(notes,      forKey: .notes)
+        let pairs = coordinates.map { [$0.latitude, $0.longitude] }
+        try c.encode(pairs,      forKey: .coordinatePairs)
+    }
+}
+
+// MARK: - GPX export helpers (shared)
+
+extension String {
+    var xmlEscaped: String {
+        self.replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+    }
+}
+
+func writeGPX(_ content: String, filename: String) -> URL? {
+    let safe = filename
+        .replacingOccurrences(of: "/", with: "-")
+        .replacingOccurrences(of: ":", with: "-")
+    let url = FileManager.default.temporaryDirectory
+        .appendingPathComponent(safe + ".gpx")
+    do {
+        try content.write(to: url, atomically: true, encoding: .utf8)
+        return url
+    } catch {
+        return nil
+    }
+}
+
+// MARK: - HikeRoute GPX export
+
+extension HikeRoute {
+    // snapped: road-accurate coordinates from MKDirections. When provided these are
+    // used for geometry (many points, no elevation). Falls back to raw waypoints with
+    // elevation when snapped coords aren't available yet.
+    func gpxFileURL(snapped: [CLLocationCoordinate2D]? = nil) -> URL? {
+        var lines = [
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+            "<gpx version=\"1.1\" creator=\"HikeUrban\" xmlns=\"http://www.topografix.com/GPX/1/1\">",
+            "  <trk>",
+            "    <name>\(name.xmlEscaped)</name>"
+        ]
+        if !description.isEmpty {
+            lines.append("    <desc>\(description.xmlEscaped)</desc>")
+        }
+        lines.append("    <trkseg>")
+        if let snapped = snapped {
+            for coord in snapped {
+                lines += [
+                    "      <trkpt lat=\"\(coord.latitude)\" lon=\"\(coord.longitude)\">",
+                    "      </trkpt>"
+                ]
+            }
+        } else {
+            for coord in coordinates {
+                let ele = String(format: "%.1f", coord.elevationFt / 3.28084)
+                lines += [
+                    "      <trkpt lat=\"\(coord.latitude)\" lon=\"\(coord.longitude)\">",
+                    "        <ele>\(ele)</ele>",
+                    "      </trkpt>"
+                ]
+            }
+        }
+        lines += ["    </trkseg>", "  </trk>", "</gpx>"]
+        return writeGPX(lines.joined(separator: "\n"), filename: name)
+    }
+}
+
+// MARK: - HikeRoute factory for user-drawn routes
+
+extension HikeRoute {
+    static func userCreated(
+        name: String,
+        coordinates: [CLLocationCoordinate2D],
+        distanceMiles: Double,
+        difficulty: Difficulty,
+        supportedModes: [RouteMode]
+    ) -> HikeRoute {
+        HikeRoute(
+            id: UUID(),
+            name: name,
+            description: "",
+            neighborhood: "My Route",
+            difficulty: difficulty,
+            supportedModes: supportedModes,
+            coordinates: coordinates.map {
+                RouteCoordinate(latitude: $0.latitude, longitude: $0.longitude, elevationFt: 0)
+            },
+            distanceMiles: distanceMiles,
+            elevationGainFt: 0,
+            estimatedMinutes: max(1, Int(distanceMiles / 3.0 * 60)),
+            rating: 0,
+            reviewCount: 0,
+            isEditorsPick: false,
+            tags: [],
+            accessibility: AccessibilityInfo(
+                isWheelchairFriendly: false,
+                isStrollerFriendly: false,
+                isLowImpact: false,
+                hasStairSections: 0,
+                surfaceType: .mixed,
+                maxGradePercent: 0,
+                notes: ""
+            ),
+            shotPins: [],
+            historicalPoints: [],
+            darkSafety: DarkSafetyRating(
+                overallScore: 3,
+                lightingQuality: 3,
+                footTraffic: 3,
+                communityNotes: "",
+                recommendedAfterDark: false
+            )
+        )
+    }
 }
 
 // MARK: - Live Session

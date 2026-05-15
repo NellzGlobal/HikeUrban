@@ -5,11 +5,44 @@ struct RouteDetailView: View {
     let route: HikeRoute
     @State private var selectedMode: RouteMode
     @State private var selectedSection = 0
+    @State private var snappedCoords: [CLLocationCoordinate2D]?
+    @State private var gpxURL: URL?
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var hikeStore: HikeStore
 
     init(route: HikeRoute) {
         self.route = route
         _selectedMode = State(initialValue: route.supportedModes.first ?? .walk)
+    }
+
+    private func snapToRoad(_ waypoints: [CLLocationCoordinate2D]) async -> [CLLocationCoordinate2D] {
+        guard waypoints.count >= 2 else { return waypoints }
+        var result: [CLLocationCoordinate2D] = [waypoints[0]]
+        for i in 1..<waypoints.count {
+            let request = MKDirections.Request()
+            if #available(iOS 26.0, *) {
+                request.source      = MKMapItem(location: CLLocation(latitude: waypoints[i-1].latitude, longitude: waypoints[i-1].longitude), address: nil)
+                request.destination = MKMapItem(location: CLLocation(latitude: waypoints[i].latitude,   longitude: waypoints[i].longitude),   address: nil)
+            } else {
+                request.source      = MKMapItem(placemark: MKPlacemark(coordinate: waypoints[i-1]))
+                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: waypoints[i]))
+            }
+            request.transportType = .walking
+            request.requestsAlternateRoutes = false
+            if let response = try? await MKDirections(request: request).calculate(),
+               let mkRoute = response.routes.first {
+                var coords = [CLLocationCoordinate2D](repeating: .init(), count: mkRoute.polyline.pointCount)
+                mkRoute.polyline.getCoordinates(&coords, range: NSRange(location: 0, length: mkRoute.polyline.pointCount))
+                result.append(contentsOf: coords)
+            } else {
+                result.append(waypoints[i])
+            }
+        }
+        return result
+    }
+
+    private var displayCoords: [CLLocationCoordinate2D] {
+        snappedCoords ?? route.clCoordinates
     }
 
     var body: some View {
@@ -19,9 +52,9 @@ struct RouteDetailView: View {
 
                     // MARK: Mini Map
                     Map {
-                        MapPolyline(coordinates: route.clCoordinates)
+                        MapPolyline(coordinates: displayCoords)
                             .stroke(Color.orange, lineWidth: 4)
-                        if let first = route.clCoordinates.first {
+                        if let first = displayCoords.first {
                             Annotation("Start", coordinate: first) {
                                 Image(systemName: "flag.fill").foregroundColor(.green)
                             }
@@ -30,6 +63,11 @@ struct RouteDetailView: View {
                     .frame(height: 220)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
+                    .task {
+                        guard snappedCoords == nil else { return }
+                        snappedCoords = await snapToRoad(route.clCoordinates)
+                        gpxURL = route.gpxFileURL(snapped: snappedCoords)
+                    }
 
                     // MARK: Mode Selector
                     VStack(alignment: .leading, spacing: 8) {
@@ -89,6 +127,7 @@ struct RouteDetailView: View {
 
                     // MARK: Start Button
                     Button {
+                        hikeStore.followRoute = route
                         dismiss()
                     } label: {
                         Label("Start this Hike", systemImage: selectedMode.icon)
@@ -106,6 +145,16 @@ struct RouteDetailView: View {
             .navigationTitle(route.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    if let url = gpxURL {
+                        ShareLink(
+                            item: url,
+                            preview: SharePreview("\(route.name).gpx", icon: Image(systemName: "map"))
+                        ) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") { dismiss() }
                 }

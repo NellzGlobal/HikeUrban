@@ -12,11 +12,12 @@ extension HikeRoute {
             difficulty: .easy,
             supportedModes: [.walk, .run, .bike, .scooter],
             coordinates: [
-                RouteCoordinate(latitude: 42.3291, longitude: -83.0487, elevationFt: 574),
-                RouteCoordinate(latitude: 42.3290, longitude: -83.0450, elevationFt: 574),
-                RouteCoordinate(latitude: 42.3291, longitude: -83.0400, elevationFt: 575),
-                RouteCoordinate(latitude: 42.3295, longitude: -83.0350, elevationFt: 576),
-                RouteCoordinate(latitude: 42.3300, longitude: -83.0300, elevationFt: 576),
+                RouteCoordinate(latitude: 42.3292, longitude: -83.0487, elevationFt: 574), // Hart Plaza
+                RouteCoordinate(latitude: 42.3291, longitude: -83.0462, elevationFt: 574), // Cobo/Huntington Place plaza
+                RouteCoordinate(latitude: 42.3291, longitude: -83.0434, elevationFt: 574), // Joe Louis Arena site
+                RouteCoordinate(latitude: 42.3289, longitude: -83.0381, elevationFt: 575), // GM Renaissance Center
+                RouteCoordinate(latitude: 42.3282, longitude: -83.0341, elevationFt: 576), // Millender Center bridge
+                RouteCoordinate(latitude: 42.3271, longitude: -83.0299, elevationFt: 576), // Dequindre Cut river entrance
             ],
             distanceMiles: 2.8,
             elevationGainFt: 18,
@@ -81,12 +82,12 @@ extension HikeRoute {
             difficulty: .easy,
             supportedModes: [.walk, .run, .bike],
             coordinates: [
-                RouteCoordinate(latitude: 42.3596, longitude: -83.0636, elevationFt: 597),
-                RouteCoordinate(latitude: 42.3584, longitude: -83.0650, elevationFt: 598),
-                RouteCoordinate(latitude: 42.3564, longitude: -83.0641, elevationFt: 600),
-                RouteCoordinate(latitude: 42.3554, longitude: -83.0612, elevationFt: 599),
-                RouteCoordinate(latitude: 42.3566, longitude: -83.0590, elevationFt: 601),
-                RouteCoordinate(latitude: 42.3596, longitude: -83.0636, elevationFt: 597),
+                RouteCoordinate(latitude: 42.3596, longitude: -83.0636, elevationFt: 597), // DIA main entrance (Woodward & Farnsworth)
+                RouteCoordinate(latitude: 42.3566, longitude: -83.0648, elevationFt: 598), // MOCAD (3rd & Forest)
+                RouteCoordinate(latitude: 42.3545, longitude: -83.0610, elevationFt: 600), // Cass Ave & Canfield
+                RouteCoordinate(latitude: 42.3559, longitude: -83.0578, elevationFt: 599), // Second Ave & Willis
+                RouteCoordinate(latitude: 42.3583, longitude: -83.0596, elevationFt: 600), // Woodward & Kirby
+                RouteCoordinate(latitude: 42.3596, longitude: -83.0636, elevationFt: 597), // Back to DIA
             ],
             distanceMiles: 3.1,
             elevationGainFt: 42,
@@ -151,12 +152,12 @@ extension HikeRoute {
             difficulty: .easy,
             supportedModes: [.walk, .run, .bike, .scooter],
             coordinates: [
-                RouteCoordinate(latitude: 42.3503, longitude: -83.0387, elevationFt: 583),
-                RouteCoordinate(latitude: 42.3510, longitude: -83.0360, elevationFt: 584),
-                RouteCoordinate(latitude: 42.3522, longitude: -83.0340, elevationFt: 585),
-                RouteCoordinate(latitude: 42.3530, longitude: -83.0370, elevationFt: 585),
-                RouteCoordinate(latitude: 42.3515, longitude: -83.0400, elevationFt: 583),
-                RouteCoordinate(latitude: 42.3503, longitude: -83.0387, elevationFt: 583),
+                RouteCoordinate(latitude: 42.3499, longitude: -83.0381, elevationFt: 583), // Shed 5 (Russell & Adelaide)
+                RouteCoordinate(latitude: 42.3511, longitude: -83.0358, elevationFt: 584), // Shed 4 (Russell & Wilkins)
+                RouteCoordinate(latitude: 42.3521, longitude: -83.0334, elevationFt: 585), // Gratiot & Chene
+                RouteCoordinate(latitude: 42.3518, longitude: -83.0358, elevationFt: 585), // St. Aubin & Gratiot
+                RouteCoordinate(latitude: 42.3507, longitude: -83.0378, elevationFt: 583), // Riopelle & Alfred
+                RouteCoordinate(latitude: 42.3499, longitude: -83.0381, elevationFt: 583), // Return to Shed 5
             ],
             distanceMiles: 2.2,
             elevationGainFt: 28,
@@ -212,11 +213,13 @@ extension HikeRoute {
             difficulty: .moderate,
             supportedModes: [.walk, .hike, .run],
             coordinates: [
-                RouteCoordinate(latitude: 42.3314, longitude: -83.0746, elevationFt: 591),
-                RouteCoordinate(latitude: 42.3330, longitude: -83.0770, elevationFt: 592),
-                RouteCoordinate(latitude: 42.3350, longitude: -83.0750, elevationFt: 594),
-                RouteCoordinate(latitude: 42.3340, longitude: -83.0720, elevationFt: 593),
-                RouteCoordinate(latitude: 42.3314, longitude: -83.0746, elevationFt: 591),
+                RouteCoordinate(latitude: 42.3317, longitude: -83.0747, elevationFt: 591), // Michigan Central Station (Vernor & 15th)
+                RouteCoordinate(latitude: 42.3299, longitude: -83.0747, elevationFt: 590), // Roosevelt Park (Michigan Ave side)
+                RouteCoordinate(latitude: 42.3343, longitude: -83.0734, elevationFt: 592), // Michigan Ave & 12th St
+                RouteCoordinate(latitude: 42.3326, longitude: -83.0715, elevationFt: 593), // Trumbull Ave & Bagley
+                RouteCoordinate(latitude: 42.3306, longitude: -83.0700, elevationFt: 592), // Trumbull & Fort
+                RouteCoordinate(latitude: 42.3306, longitude: -83.0720, elevationFt: 591), // W Fort & 16th
+                RouteCoordinate(latitude: 42.3317, longitude: -83.0747, elevationFt: 591), // Return to Michigan Central
             ],
             distanceMiles: 3.8,
             elevationGainFt: 67,
@@ -288,12 +291,12 @@ extension HikeRoute {
             difficulty: .easy,
             supportedModes: [.walk, .run, .bike, .scooter],
             coordinates: [
-                RouteCoordinate(latitude: 42.3305, longitude: -83.0298, elevationFt: 578),
-                RouteCoordinate(latitude: 42.3340, longitude: -83.0296, elevationFt: 579),
-                RouteCoordinate(latitude: 42.3380, longitude: -83.0295, elevationFt: 581),
-                RouteCoordinate(latitude: 42.3420, longitude: -83.0294, elevationFt: 582),
-                RouteCoordinate(latitude: 42.3460, longitude: -83.0295, elevationFt: 583),
-                RouteCoordinate(latitude: 42.3500, longitude: -83.0297, elevationFt: 583),
+                RouteCoordinate(latitude: 42.3270, longitude: -83.0299, elevationFt: 576), // Riverwalk entrance ramp (foot of Riopelle)
+                RouteCoordinate(latitude: 42.3308, longitude: -83.0297, elevationFt: 578), // Under Atwater / Munro St crossing
+                RouteCoordinate(latitude: 42.3345, longitude: -83.0296, elevationFt: 579), // Under Lafayette St bridge
+                RouteCoordinate(latitude: 42.3388, longitude: -83.0300, elevationFt: 581), // Under Gratiot Ave bridge
+                RouteCoordinate(latitude: 42.3432, longitude: -83.0308, elevationFt: 582), // Under Mack Ave bridge
+                RouteCoordinate(latitude: 42.3497, longitude: -83.0351, elevationFt: 583), // Eastern Market entrance (Riopelle & Winder)
             ],
             distanceMiles: 1.4,
             elevationGainFt: 22,
@@ -349,12 +352,13 @@ extension HikeRoute {
             difficulty: .moderate,
             supportedModes: [.walk, .hike, .run, .bike],
             coordinates: [
-                RouteCoordinate(latitude: 42.3744, longitude: -83.0820, elevationFt: 608),
-                RouteCoordinate(latitude: 42.3770, longitude: -83.0800, elevationFt: 611),
-                RouteCoordinate(latitude: 42.3800, longitude: -83.0810, elevationFt: 614),
-                RouteCoordinate(latitude: 42.3790, longitude: -83.0840, elevationFt: 613),
-                RouteCoordinate(latitude: 42.3760, longitude: -83.0850, elevationFt: 610),
-                RouteCoordinate(latitude: 42.3744, longitude: -83.0820, elevationFt: 608),
+                RouteCoordinate(latitude: 42.3744, longitude: -83.0822, elevationFt: 608), // Fisher Building (2nd Ave & W Grand Blvd)
+                RouteCoordinate(latitude: 42.3736, longitude: -83.0836, elevationFt: 609), // W Grand Blvd & Woodward
+                RouteCoordinate(latitude: 42.3777, longitude: -83.0826, elevationFt: 613), // Woodward & Philadelphia (North End)
+                RouteCoordinate(latitude: 42.3809, longitude: -83.0826, elevationFt: 616), // Woodward & Euclid
+                RouteCoordinate(latitude: 42.3808, longitude: -83.0800, elevationFt: 615), // Oakland Ave & Euclid
+                RouteCoordinate(latitude: 42.3776, longitude: -83.0803, elevationFt: 612), // Oakland & Boston Blvd
+                RouteCoordinate(latitude: 42.3744, longitude: -83.0822, elevationFt: 608), // Return to Fisher Building
             ],
             distanceMiles: 4.2,
             elevationGainFt: 88,

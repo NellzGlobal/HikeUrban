@@ -5,16 +5,21 @@ import MapKit
 // Editor's Pick is live. Surprise Me is earmarked — needs user preference data.
 
 struct DiscoverView: View {
-    let routes = HikeRoute.featuredRoutes
+    @EnvironmentObject var cityStore: CityStore
     @State private var showSurpriseMe = false
     @State private var surpriseRoute: HikeRoute?
 
+    var routes: [HikeRoute] { cityStore.selectedCity.routes }
     var editorsPicks: [HikeRoute] { routes.filter { $0.isEditorsPick } }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
+
+                    // MARK: City Picker
+                    CityPickerBar()
+                        .padding(.horizontal, -16)
 
                     // MARK: Surprise Me
                     SurpriseMeBanner {
@@ -30,7 +35,7 @@ struct DiscoverView: View {
                         SectionHeader(
                             icon: "star.circle.fill",
                             title: "Editor's Picks",
-                            subtitle: "Curated routes to get you exploring"
+                            subtitle: "\(cityStore.selectedCity.name) · \(cityStore.selectedCity.tagline)"
                         )
                         .padding(.horizontal)
 

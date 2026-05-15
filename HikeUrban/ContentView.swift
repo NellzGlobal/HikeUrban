@@ -36,6 +36,9 @@ struct ContentView: View {
                 .tag(5)
         }
         .accentColor(.orange)
+        .onChange(of: hikeStore.followRoute?.id) { _, id in
+            if id != nil { selectedTab = 2 }
+        }
         .onAppear {
             locationManager.requestPermission()
             if !profile.isSetUp {

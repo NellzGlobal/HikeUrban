@@ -4,7 +4,7 @@ import CoreLocation
 // MARK: - All Cities
 
 extension FeaturedCity {
-    static let all: [FeaturedCity] = [detroit, newYork, chicago, nashville]
+    static let all: [FeaturedCity] = [detroit, newYork, chicago, nashville, cleveland, windsor, londonON, parisON, toronto]
 
     // MARK: - Detroit
 
@@ -754,6 +754,501 @@ extension FeaturedCity {
                 highlights: ["12th Ave S shops", "I Believe in Nashville mural", "brunch scene", "Sevier Park"],
                 notes: "Nashville's most Instagram-friendly street. Dense, tree-lined, and very pedestrian-friendly."
             ),
+        ]
+    )
+
+    // MARK: - Cleveland
+
+    static let cleveland = FeaturedCity(
+        id: "cleveland",
+        name: "Cleveland",
+        state: "OH",
+        emoji: "🎸",
+        tagline: "Rock Hall, river trails & Ohio City",
+        center: CLLocationCoordinate2D(latitude: 41.4993, longitude: -81.6944),
+        routes: [
+            HikeRoute(
+                id: UUID(),
+                name: "Flats East Bank & Towpath",
+                description: "Walk the Cuyahoga River through the historic Flats, where industrial heritage meets craft breweries and a revived riverfront. Connect to the towpath trail for river views and wildlife.",
+                neighborhood: "The Flats",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike],
+                coordinates: [
+                    RouteCoordinate(latitude: 41.4962, longitude: -81.6955, elevationFt: 580),
+                    RouteCoordinate(latitude: 41.4945, longitude: -81.6962, elevationFt: 578),
+                    RouteCoordinate(latitude: 41.4920, longitude: -81.6975, elevationFt: 577),
+                    RouteCoordinate(latitude: 41.4900, longitude: -81.6985, elevationFt: 576),
+                ],
+                distanceMiles: 2.0,
+                elevationGainFt: 28,
+                estimatedMinutes: 42,
+                rating: 4.5,
+                reviewCount: 312,
+                isEditorsPick: true,
+                tags: ["river", "industrial", "brewery", "towpath"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 2.0, notes: "Flat paved path along the river."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Cuyahoga River at Dusk", shootingNotes: "The old lift bridges and brewery lights reflect in the river. Best 20 min after sunset when the city glow kicks in.", coordinate: RouteCoordinate(latitude: 41.4945, longitude: -81.6962, elevationFt: 578), bestTimeOfDay: .goldenHourEvening, suggestedFocalLength: "35–85mm", tags: [.water, .industrial]),
+                ],
+                historicalPoints: [
+                    HistoricalPoint(id: UUID(), title: "Cuyahoga River Fire — 1969", era: "1969", description: "The river was so polluted it caught fire multiple times. The 1969 fire shocked the nation and directly inspired the Clean Water Act. The river today is clean enough for kayaking.", coordinate: RouteCoordinate(latitude: 41.4920, longitude: -81.6975, elevationFt: 577)),
+                ],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 4, footTraffic: 3, communityNotes: "Well lit along the riverfront. Active bar scene keeps foot traffic up most evenings.", recommendedAfterDark: true)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Ohio City & West Side Market",
+                description: "Explore Cleveland's most walkable neighbourhood — a dense grid of Victorian homes, craft coffee shops, and the magnificent West Side Market, a century-old indoor market under a soaring vaulted ceiling.",
+                neighborhood: "Ohio City",
+                difficulty: .easy,
+                supportedModes: [.walk, .run],
+                coordinates: [
+                    RouteCoordinate(latitude: 41.4851, longitude: -81.7031, elevationFt: 620),
+                    RouteCoordinate(latitude: 41.4865, longitude: -81.7010, elevationFt: 621),
+                    RouteCoordinate(latitude: 41.4880, longitude: -81.6990, elevationFt: 622),
+                    RouteCoordinate(latitude: 41.4895, longitude: -81.6975, elevationFt: 620),
+                    RouteCoordinate(latitude: 41.4851, longitude: -81.7031, elevationFt: 620),
+                ],
+                distanceMiles: 1.8,
+                elevationGainFt: 35,
+                estimatedMinutes: 38,
+                rating: 4.7,
+                reviewCount: 428,
+                isEditorsPick: true,
+                tags: ["market", "Victorian", "coffee", "neighbourhood"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 3.0, notes: "Flat, paved sidewalks throughout Ohio City."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "West Side Market Clock Tower", shootingNotes: "The terracotta Romanesque clock tower is stunning. Shoot from W 25th St at mid-morning when the light hits the facade. Inside: wide lens for the iron arcade.", coordinate: RouteCoordinate(latitude: 41.4851, longitude: -81.7031, elevationFt: 620), bestTimeOfDay: .goldenHourMorning, suggestedFocalLength: "24–35mm", tags: [.architecture]),
+                ],
+                historicalPoints: [
+                    HistoricalPoint(id: UUID(), title: "West Side Market — 1912", era: "1912", description: "Opened in 1912, this is one of the oldest continuously operating markets in the US. The vaulted arcade was engineered by the same firm behind the Cleveland Terminal Tower.", coordinate: RouteCoordinate(latitude: 41.4851, longitude: -81.7031, elevationFt: 620)),
+                ],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 4, footTraffic: 4, communityNotes: "Very active neighbourhood. Busy restaurants and bars until late.", recommendedAfterDark: true)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "University Circle Cultural Loop",
+                description: "Circle one of the densest concentrations of museums and cultural institutions in the US — the Cleveland Museum of Art (free), Natural History Museum, Botanical Garden, and Wade Oval, all walkable from each other.",
+                neighborhood: "University Circle",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike],
+                coordinates: [
+                    RouteCoordinate(latitude: 41.5097, longitude: -81.6082, elevationFt: 780),
+                    RouteCoordinate(latitude: 41.5080, longitude: -81.6050, elevationFt: 779),
+                    RouteCoordinate(latitude: 41.5060, longitude: -81.6030, elevationFt: 778),
+                    RouteCoordinate(latitude: 41.5070, longitude: -81.6065, elevationFt: 780),
+                    RouteCoordinate(latitude: 41.5097, longitude: -81.6082, elevationFt: 780),
+                ],
+                distanceMiles: 2.5,
+                elevationGainFt: 42,
+                estimatedMinutes: 52,
+                rating: 4.6,
+                reviewCount: 267,
+                isEditorsPick: false,
+                tags: ["museums", "culture", "free", "park"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 3.0, notes: "Well-maintained paved paths. CMA and Natural History Museum fully accessible."),
+                shotPins: [],
+                historicalPoints: [],
+                darkSafety: DarkSafetyRating(overallScore: 3, lightingQuality: 3, footTraffic: 2, communityNotes: "Quieter at night — daytime and evening cultural events bring foot traffic. Wade Oval well lit.", recommendedAfterDark: false)
+            ),
+        ],
+        neighborhoods: [
+            WalkableNeighborhood(name: "Ohio City", walkScore: 88, coordinates: [CLLocationCoordinate2D(latitude: 41.4920, longitude: -81.7110), CLLocationCoordinate2D(latitude: 41.4920, longitude: -81.6930), CLLocationCoordinate2D(latitude: 41.4780, longitude: -81.6930), CLLocationCoordinate2D(latitude: 41.4780, longitude: -81.7110)], highlights: ["West Side Market", "W 25th St restaurants", "Great Lakes Brewing"], notes: "Cleveland's most walkable neighbourhood. Dense, flat, lined with independent businesses and Victorian homes."),
+            WalkableNeighborhood(name: "Tremont", walkScore: 82, coordinates: [CLLocationCoordinate2D(latitude: 41.4800, longitude: -81.6970), CLLocationCoordinate2D(latitude: 41.4800, longitude: -81.6820), CLLocationCoordinate2D(latitude: 41.4680, longitude: -81.6820), CLLocationCoordinate2D(latitude: 41.4680, longitude: -81.6970)], highlights: ["Lincoln Park", "gallery scene", "Tremont Tap House", "arts district"], notes: "Bohemian arts district on a bluff above the Flats. Walkable restaurant strip with city views."),
+            WalkableNeighborhood(name: "University Circle", walkScore: 78, coordinates: [CLLocationCoordinate2D(latitude: 41.5160, longitude: -81.6200), CLLocationCoordinate2D(latitude: 41.5160, longitude: -81.5980), CLLocationCoordinate2D(latitude: 41.5020, longitude: -81.5980), CLLocationCoordinate2D(latitude: 41.5020, longitude: -81.6200)], highlights: ["CMA (free)", "Natural History Museum", "Wade Oval", "Botanical Garden"], notes: "Dense cultural campus — some of the best free museums in the country, all walkable from each other."),
+            WalkableNeighborhood(name: "The Flats", walkScore: 75, coordinates: [CLLocationCoordinate2D(latitude: 41.5020, longitude: -81.7050), CLLocationCoordinate2D(latitude: 41.5020, longitude: -81.6870), CLLocationCoordinate2D(latitude: 41.4870, longitude: -81.6870), CLLocationCoordinate2D(latitude: 41.4870, longitude: -81.7050)], highlights: ["Cuyahoga River", "Towpath Trail", "lift bridges", "brewery row"], notes: "Historic industrial waterfront being revived. Great for evening walks along the river."),
+        ]
+    )
+
+    // MARK: - Windsor, ON
+
+    static let windsor = FeaturedCity(
+        id: "windsor",
+        name: "Windsor",
+        state: "ON",
+        emoji: "🌉",
+        tagline: "Detroit's twin city across the river",
+        center: CLLocationCoordinate2D(latitude: 42.3149, longitude: -83.0364),
+        routes: [
+            HikeRoute(
+                id: UUID(),
+                name: "Windsor Riverfront Trail",
+                description: "Walk the most striking urban waterfront in Canada — the Windsor Riverfront faces the Detroit skyline across the Detroit River. The Odette Sculpture Park lines the path with 31 monumental sculptures.",
+                neighborhood: "Downtown Windsor",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike, .scooter],
+                coordinates: [
+                    RouteCoordinate(latitude: 42.3103, longitude: -83.0490, elevationFt: 575),
+                    RouteCoordinate(latitude: 42.3097, longitude: -83.0420, elevationFt: 575),
+                    RouteCoordinate(latitude: 42.3095, longitude: -83.0370, elevationFt: 575),
+                    RouteCoordinate(latitude: 42.3092, longitude: -83.0300, elevationFt: 575),
+                    RouteCoordinate(latitude: 42.3095, longitude: -83.0250, elevationFt: 575),
+                ],
+                distanceMiles: 2.2,
+                elevationGainFt: 5,
+                estimatedMinutes: 44,
+                rating: 4.8,
+                reviewCount: 523,
+                isEditorsPick: true,
+                tags: ["waterfront", "sculpture", "skyline", "flat"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 1.0, notes: "Completely flat paved trail. One of the most accessible waterfront walks in Ontario."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Detroit Skyline from Windsor", shootingNotes: "The only place in Canada where you look south into the US. Frame the Renaissance Center across the water. Golden hour from the west lights up the Detroit towers brilliantly.", coordinate: RouteCoordinate(latitude: 42.3095, longitude: -83.0370, elevationFt: 575), bestTimeOfDay: .goldenHourEvening, suggestedFocalLength: "50–200mm", tags: [.architecture, .water]),
+                ],
+                historicalPoints: [
+                    HistoricalPoint(id: UUID(), title: "Underground Railroad — Freedom's Crossing", era: "1830s–1860s", description: "Windsor was the final stop on the Underground Railroad. Thousands of freedom-seekers crossed the Detroit River here to reach Canada and freedom. A monument near Dieppe Park marks the crossing point.", coordinate: RouteCoordinate(latitude: 42.3092, longitude: -83.0300, elevationFt: 575)),
+                ],
+                darkSafety: DarkSafetyRating(overallScore: 5, lightingQuality: 5, footTraffic: 4, communityNotes: "Exceptionally well lit and heavily used. Safe at all hours.", recommendedAfterDark: true)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Walkerville Heritage Walk",
+                description: "Walkerville is one of the best-preserved early 20th-century company-town neighbourhoods in Canada — built by the Hiram Walker whisky family. Grand Edwardian homes, brick streets, and Willistead Manor make this a hidden gem.",
+                neighborhood: "Walkerville",
+                difficulty: .easy,
+                supportedModes: [.walk, .run],
+                coordinates: [
+                    RouteCoordinate(latitude: 42.3234, longitude: -83.0177, elevationFt: 592),
+                    RouteCoordinate(latitude: 42.3220, longitude: -83.0160, elevationFt: 591),
+                    RouteCoordinate(latitude: 42.3200, longitude: -83.0150, elevationFt: 590),
+                    RouteCoordinate(latitude: 42.3185, longitude: -83.0165, elevationFt: 591),
+                    RouteCoordinate(latitude: 42.3200, longitude: -83.0190, elevationFt: 592),
+                    RouteCoordinate(latitude: 42.3234, longitude: -83.0177, elevationFt: 592),
+                ],
+                distanceMiles: 1.5,
+                elevationGainFt: 20,
+                estimatedMinutes: 32,
+                rating: 4.6,
+                reviewCount: 187,
+                isEditorsPick: true,
+                tags: ["heritage", "Edwardian", "whisky", "mansion"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 2.0, notes: "Flat paved neighbourhood streets."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Willistead Manor", shootingNotes: "A 36-room Edwardian Tudor-Jacobean mansion set in public parkland. Shoot the facade from the south lawn. Overcast days give the stone a dramatic moody look.", coordinate: RouteCoordinate(latitude: 42.3200, longitude: -83.0150, elevationFt: 590), bestTimeOfDay: .anytime, suggestedFocalLength: "24–50mm", tags: [.architecture]),
+                ],
+                historicalPoints: [
+                    HistoricalPoint(id: UUID(), title: "Hiram Walker & Sons Distillery — 1858", era: "1858", description: "American businessman Hiram Walker built a distillery here in 1858 — and then built an entire town around it. Canadian Club whisky is still made here, making it one of North America's oldest operating distilleries.", coordinate: RouteCoordinate(latitude: 42.3234, longitude: -83.0177, elevationFt: 592)),
+                ],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 4, footTraffic: 2, communityNotes: "Quiet residential neighbourhood. Well-lit streets but low foot traffic at night.", recommendedAfterDark: false)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Downtown Windsor & Dieppe Park",
+                description: "Walk Ouellette Ave — Windsor's main street — through downtown shops and restaurants, finishing at Dieppe Park on the waterfront for direct views of the Ambassador Bridge and Detroit skyline.",
+                neighborhood: "Downtown Windsor",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .scooter],
+                coordinates: [
+                    RouteCoordinate(latitude: 42.3149, longitude: -83.0364, elevationFt: 580),
+                    RouteCoordinate(latitude: 42.3140, longitude: -83.0340, elevationFt: 579),
+                    RouteCoordinate(latitude: 42.3132, longitude: -83.0330, elevationFt: 578),
+                    RouteCoordinate(latitude: 42.3105, longitude: -83.0350, elevationFt: 576),
+                    RouteCoordinate(latitude: 42.3095, longitude: -83.0370, elevationFt: 575),
+                ],
+                distanceMiles: 1.3,
+                elevationGainFt: 12,
+                estimatedMinutes: 27,
+                rating: 4.4,
+                reviewCount: 234,
+                isEditorsPick: false,
+                tags: ["downtown", "waterfront", "bridge views", "shopping"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 1.5, notes: "Flat paved streets and waterfront."),
+                shotPins: [],
+                historicalPoints: [],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 4, footTraffic: 3, communityNotes: "Active downtown strip. Waterfront well lit. Recommend staying on main streets.", recommendedAfterDark: true)
+            ),
+        ],
+        neighborhoods: [
+            WalkableNeighborhood(name: "Downtown Windsor", walkScore: 80, coordinates: [CLLocationCoordinate2D(latitude: 42.3220, longitude: -83.0480), CLLocationCoordinate2D(latitude: 42.3220, longitude: -83.0250), CLLocationCoordinate2D(latitude: 42.3070, longitude: -83.0250), CLLocationCoordinate2D(latitude: 42.3070, longitude: -83.0480)], highlights: ["Ouellette Ave", "Riverfront Trail", "Caesars Windsor", "Art Gallery of Windsor"], notes: "Compact, flat, and very walkable. The riverfront is the crown jewel — best Detroit skyline views anywhere."),
+            WalkableNeighborhood(name: "Walkerville", walkScore: 72, coordinates: [CLLocationCoordinate2D(latitude: 42.3300, longitude: -83.0230), CLLocationCoordinate2D(latitude: 42.3300, longitude: -83.0070), CLLocationCoordinate2D(latitude: 42.3140, longitude: -83.0070), CLLocationCoordinate2D(latitude: 42.3140, longitude: -83.0230)], highlights: ["Willistead Manor", "Canadian Club Heritage Centre", "Devonshire Mall area", "Edwardian streetscapes"], notes: "Historic whisky-family company town. Beautifully preserved, quiet, and photogenic."),
+            WalkableNeighborhood(name: "Riverside Drive East", walkScore: 68, coordinates: [CLLocationCoordinate2D(latitude: 42.3280, longitude: -82.9950), CLLocationCoordinate2D(latitude: 42.3280, longitude: -82.9720), CLLocationCoordinate2D(latitude: 42.3120, longitude: -82.9720), CLLocationCoordinate2D(latitude: 42.3120, longitude: -82.9950)], highlights: ["Riverside Drive waterfront", "Coventry Gardens", "Peace Fountain"], notes: "Quieter residential waterfront east of downtown. Coventry Gardens has great river views."),
+            WalkableNeighborhood(name: "Sandwich Town", walkScore: 65, coordinates: [CLLocationCoordinate2D(latitude: 42.3250, longitude: -83.0750), CLLocationCoordinate2D(latitude: 42.3250, longitude: -83.0570), CLLocationCoordinate2D(latitude: 42.3090, longitude: -83.0570), CLLocationCoordinate2D(latitude: 42.3090, longitude: -83.0750)], highlights: ["Mackenzie Hall", "Baby House museum", "Sandwich Heritage Walk", "Ambassador Bridge views"], notes: "Windsor's oldest neighbourhood and a National Historic Site. Under-visited — worth exploring."),
+        ]
+    )
+
+    // MARK: - London, Ontario
+
+    static let londonON = FeaturedCity(
+        id: "london_on",
+        name: "London",
+        state: "ON",
+        emoji: "🎓",
+        tagline: "Thames River trails & university energy",
+        center: CLLocationCoordinate2D(latitude: 42.9849, longitude: -81.2453),
+        routes: [
+            HikeRoute(
+                id: UUID(),
+                name: "Forks of the Thames",
+                description: "Walk the confluence of the north and south branches of the Thames River through London's historic core. Paved trails, pedestrian bridges, and views of the downtown skyline make this the city's signature walk.",
+                neighborhood: "Downtown London",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike, .scooter],
+                coordinates: [
+                    RouteCoordinate(latitude: 42.9788, longitude: -81.2482, elevationFt: 866),
+                    RouteCoordinate(latitude: 42.9800, longitude: -81.2440, elevationFt: 865),
+                    RouteCoordinate(latitude: 42.9820, longitude: -81.2400, elevationFt: 864),
+                    RouteCoordinate(latitude: 42.9810, longitude: -81.2450, elevationFt: 865),
+                    RouteCoordinate(latitude: 42.9788, longitude: -81.2482, elevationFt: 866),
+                ],
+                distanceMiles: 2.0,
+                elevationGainFt: 18,
+                estimatedMinutes: 40,
+                rating: 4.5,
+                reviewCount: 298,
+                isEditorsPick: true,
+                tags: ["river", "flat", "paved", "bridges"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 1.5, notes: "Fully paved, very flat riverside trail."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Confluence of the Thames", shootingNotes: "Stand at the forks where the two branches meet. Shoot downstream at golden hour when the light catches the water surface. A wide lens works well to capture both banks.", coordinate: RouteCoordinate(latitude: 42.9788, longitude: -81.2482, elevationFt: 866), bestTimeOfDay: .goldenHourEvening, suggestedFocalLength: "16–35mm", tags: [.water, .nature]),
+                ],
+                historicalPoints: [
+                    HistoricalPoint(id: UUID(), title: "Labatt Memorial Park — World's Oldest Baseball Diamond", era: "1877", description: "Just north of the Forks, Labatt Park has hosted baseball since 1877 — making it the oldest baseball grounds in continuous use in the world, according to the Guinness Book of Records.", coordinate: RouteCoordinate(latitude: 42.9800, longitude: -81.2440, elevationFt: 865)),
+                ],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 4, footTraffic: 3, communityNotes: "Well lit along the main trail. Active during evenings. Stick to paved paths.", recommendedAfterDark: true)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Old East Village Heritage Loop",
+                description: "Old East Village is London's oldest commercial strip — Hamilton Road, lined with independent shops, murals, and a genuine neighbourhood feel that has nothing to do with big-box retail.",
+                neighborhood: "Old East Village",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike],
+                coordinates: [
+                    RouteCoordinate(latitude: 42.9855, longitude: -81.2200, elevationFt: 892),
+                    RouteCoordinate(latitude: 42.9870, longitude: -81.2180, elevationFt: 893),
+                    RouteCoordinate(latitude: 42.9890, longitude: -81.2155, elevationFt: 894),
+                    RouteCoordinate(latitude: 42.9870, longitude: -81.2135, elevationFt: 893),
+                    RouteCoordinate(latitude: 42.9855, longitude: -81.2200, elevationFt: 892),
+                ],
+                distanceMiles: 1.8,
+                elevationGainFt: 28,
+                estimatedMinutes: 38,
+                rating: 4.3,
+                reviewCount: 142,
+                isEditorsPick: false,
+                tags: ["heritage", "murals", "local shops", "community"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 2.0, notes: "Flat paved sidewalks throughout."),
+                shotPins: [],
+                historicalPoints: [],
+                darkSafety: DarkSafetyRating(overallScore: 3, lightingQuality: 3, footTraffic: 2, communityNotes: "Active during business hours. Quieter at night — stick to Hamilton Rd main strip.", recommendedAfterDark: false)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Wortley Village to Westminster Ponds",
+                description: "Start in Wortley Village — London's beloved 'village within a city' — and walk south to Westminster Ponds, a provincial nature reserve with lily-covered kettlehole ponds amid the suburbs.",
+                neighborhood: "Wortley Village",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike],
+                coordinates: [
+                    RouteCoordinate(latitude: 42.9617, longitude: -81.2500, elevationFt: 925),
+                    RouteCoordinate(latitude: 42.9590, longitude: -81.2485, elevationFt: 924),
+                    RouteCoordinate(latitude: 42.9560, longitude: -81.2470, elevationFt: 922),
+                    RouteCoordinate(latitude: 42.9530, longitude: -81.2480, elevationFt: 920),
+                    RouteCoordinate(latitude: 42.9617, longitude: -81.2500, elevationFt: 925),
+                ],
+                distanceMiles: 2.3,
+                elevationGainFt: 38,
+                estimatedMinutes: 48,
+                rating: 4.6,
+                reviewCount: 211,
+                isEditorsPick: true,
+                tags: ["village", "nature", "ponds", "quiet"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: false, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .mixed, maxGradePercent: 4.0, notes: "Paved through Wortley, some gravel near Westminster Ponds."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Westminster Ponds — Water Lilies", shootingNotes: "The kettlehole ponds are covered in water lilies in summer. Shoot from the boardwalk at mid-morning for calm reflections. Dragonflies are plentiful in July.", coordinate: RouteCoordinate(latitude: 42.9530, longitude: -81.2480, elevationFt: 920), bestTimeOfDay: .goldenHourMorning, suggestedFocalLength: "50–200mm", tags: [.nature, .water]),
+                ],
+                historicalPoints: [],
+                darkSafety: DarkSafetyRating(overallScore: 3, lightingQuality: 3, footTraffic: 2, communityNotes: "Wortley Village busy until late. Westminster Ponds dark and isolated at night.", recommendedAfterDark: false)
+            ),
+        ],
+        neighborhoods: [
+            WalkableNeighborhood(name: "Downtown London", walkScore: 88, coordinates: [CLLocationCoordinate2D(latitude: 42.9970, longitude: -81.2590), CLLocationCoordinate2D(latitude: 42.9970, longitude: -81.2300), CLLocationCoordinate2D(latitude: 42.9770, longitude: -81.2300), CLLocationCoordinate2D(latitude: 42.9770, longitude: -81.2590)], highlights: ["Covent Garden Market", "Budweiser Gardens", "Forks of the Thames", "Dundas St"], notes: "London's compact downtown is surprisingly walkable. The Forks trail system connects most of it."),
+            WalkableNeighborhood(name: "Old East Village", walkScore: 78, coordinates: [CLLocationCoordinate2D(latitude: 42.9940, longitude: -81.2270), CLLocationCoordinate2D(latitude: 42.9940, longitude: -81.2050), CLLocationCoordinate2D(latitude: 42.9770, longitude: -81.2050), CLLocationCoordinate2D(latitude: 42.9770, longitude: -81.2270)], highlights: ["Hamilton Rd shops", "street murals", "Aeolian Hall", "community gardens"], notes: "London's most authentic neighbourhood. Independent shops, murals, and a strong community identity."),
+            WalkableNeighborhood(name: "Wortley Village", walkScore: 82, coordinates: [CLLocationCoordinate2D(latitude: 42.9680, longitude: -81.2580), CLLocationCoordinate2D(latitude: 42.9680, longitude: -81.2390), CLLocationCoordinate2D(latitude: 42.9530, longitude: -81.2390), CLLocationCoordinate2D(latitude: 42.9530, longitude: -81.2580)], highlights: ["Wortley Rd shops", "Wortley Village Pub", "Westminster Ponds nearby", "farmers market"], notes: "Consistently voted London's favourite neighbourhood. Tight-knit, walkable village feel within the city."),
+            WalkableNeighborhood(name: "Old North / Woodfield", walkScore: 70, coordinates: [CLLocationCoordinate2D(latitude: 43.0100, longitude: -81.2700), CLLocationCoordinate2D(latitude: 43.0100, longitude: -81.2440), CLLocationCoordinate2D(latitude: 42.9900, longitude: -81.2440), CLLocationCoordinate2D(latitude: 42.9900, longitude: -81.2700)], highlights: ["Woodfield heritage homes", "Victoria Park", "Western Fair District"], notes: "Beautiful Victorian and Edwardian homes. Walkable to downtown and parks."),
+        ]
+    )
+
+    // MARK: - Paris, Ontario
+
+    static let parisON = FeaturedCity(
+        id: "paris_on",
+        name: "Paris",
+        state: "ON",
+        emoji: "🌹",
+        tagline: "Cobblestone streets & the Grand River",
+        center: CLLocationCoordinate2D(latitude: 43.1952, longitude: -80.3844),
+        routes: [
+            HikeRoute(
+                id: UUID(),
+                name: "Grand River Loop",
+                description: "A peaceful loop following the Grand River through Paris's small-town core. Pass the Penman's Dam, cross the century-old pedestrian bridge, and return via the cobblestone hill that gives this route its character.",
+                neighborhood: "Downtown Paris",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike],
+                coordinates: [
+                    RouteCoordinate(latitude: 43.1952, longitude: -80.3844, elevationFt: 774),
+                    RouteCoordinate(latitude: 43.1940, longitude: -80.3820, elevationFt: 770),
+                    RouteCoordinate(latitude: 43.1920, longitude: -80.3800, elevationFt: 768),
+                    RouteCoordinate(latitude: 43.1910, longitude: -80.3830, elevationFt: 770),
+                    RouteCoordinate(latitude: 43.1930, longitude: -80.3860, elevationFt: 773),
+                    RouteCoordinate(latitude: 43.1952, longitude: -80.3844, elevationFt: 774),
+                ],
+                distanceMiles: 2.0,
+                elevationGainFt: 30,
+                estimatedMinutes: 42,
+                rating: 4.7,
+                reviewCount: 186,
+                isEditorsPick: true,
+                tags: ["river", "cobblestone", "dam", "small-town"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: false, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .mixed, maxGradePercent: 5.0, notes: "Cobblestone hill requires care. Riverside paths are packed gravel."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Penman's Dam & Covered Bridge Area", shootingNotes: "The historic dam and weir create a picturesque cascade. Shoot at golden hour when the low light rakes across the water. Morning mist in spring is spectacular.", coordinate: RouteCoordinate(latitude: 43.1920, longitude: -80.3800, elevationFt: 768), bestTimeOfDay: .goldenHourMorning, suggestedFocalLength: "24–50mm", tags: [.water, .nature]),
+                    ShotPin(id: UUID(), title: "Cobblestone Hill — Grand River St N", shootingNotes: "One of the last cobblestone streets in Ontario. Shoot looking downhill toward the river — the texture and slope make a beautiful composition. Best in rain when wet cobbles catch the light.", coordinate: RouteCoordinate(latitude: 43.1950, longitude: -80.3838, elevationFt: 773), bestTimeOfDay: .anytime, suggestedFocalLength: "35–50mm", tags: [.architecture, .streetArt]),
+                ],
+                historicalPoints: [
+                    HistoricalPoint(id: UUID(), title: "Paris Founded — 1829", era: "1829", description: "Paris was named for the gypsum deposits found here — used to make plaster of Paris. The cobblestone buildings downtown were built from local Paris cobblestone, giving the town its distinctive look.", coordinate: RouteCoordinate(latitude: 43.1952, longitude: -80.3844, elevationFt: 774)),
+                ],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 3, footTraffic: 2, communityNotes: "Very safe small town. Light foot traffic at night but low crime. Riverside paths are unlit.", recommendedAfterDark: false)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Downtown Paris Heritage Walk",
+                description: "A short stroll through downtown Paris's remarkably intact 19th-century streetscape. Cobblestone buildings, independent shops, and the Grand River at the bottom of the hill — a rare pocket of small-town Ontario charm.",
+                neighborhood: "Downtown Paris",
+                difficulty: .easy,
+                supportedModes: [.walk],
+                coordinates: [
+                    RouteCoordinate(latitude: 43.1952, longitude: -80.3844, elevationFt: 774),
+                    RouteCoordinate(latitude: 43.1960, longitude: -80.3830, elevationFt: 776),
+                    RouteCoordinate(latitude: 43.1968, longitude: -80.3820, elevationFt: 778),
+                    RouteCoordinate(latitude: 43.1958, longitude: -80.3855, elevationFt: 775),
+                    RouteCoordinate(latitude: 43.1945, longitude: -80.3865, elevationFt: 773),
+                    RouteCoordinate(latitude: 43.1952, longitude: -80.3844, elevationFt: 774),
+                ],
+                distanceMiles: 1.2,
+                elevationGainFt: 22,
+                estimatedMinutes: 25,
+                rating: 4.5,
+                reviewCount: 98,
+                isEditorsPick: false,
+                tags: ["heritage", "cobblestone", "village", "short"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: false, isStrollerFriendly: false, isLowImpact: true, hasStairSections: 0, surfaceType: .mixed, maxGradePercent: 6.0, notes: "Cobblestone streets are uneven. Not suitable for wheelchairs or strollers on the hill."),
+                shotPins: [],
+                historicalPoints: [],
+                darkSafety: DarkSafetyRating(overallScore: 3, lightingQuality: 3, footTraffic: 1, communityNotes: "Very quiet at night. Safe but not much foot traffic after 9pm.", recommendedAfterDark: false)
+            ),
+        ],
+        neighborhoods: [
+            WalkableNeighborhood(name: "Downtown Paris", walkScore: 72, coordinates: [CLLocationCoordinate2D(latitude: 43.2010, longitude: -80.3920), CLLocationCoordinate2D(latitude: 43.2010, longitude: -80.3760), CLLocationCoordinate2D(latitude: 43.1880, longitude: -80.3760), CLLocationCoordinate2D(latitude: 43.1880, longitude: -80.3920)], highlights: ["Cobblestone Hill", "Grand River St", "Market Square", "independent shops"], notes: "Compact, charming, and very walkable. The cobblestone downtown is one of Ontario's best-preserved small-town streetscapes."),
+            WalkableNeighborhood(name: "Grand River District", walkScore: 65, coordinates: [CLLocationCoordinate2D(latitude: 43.1960, longitude: -80.3980), CLLocationCoordinate2D(latitude: 43.1960, longitude: -80.3790), CLLocationCoordinate2D(latitude: 43.1870, longitude: -80.3790), CLLocationCoordinate2D(latitude: 43.1870, longitude: -80.3980)], highlights: ["Penman's Dam", "riverside trails", "Barker's Bush Conservation Area"], notes: "The river corridor running through and around Paris. Best for peaceful nature walks."),
+            WalkableNeighborhood(name: "Cobblestone District", walkScore: 75, coordinates: [CLLocationCoordinate2D(latitude: 43.1990, longitude: -80.3870), CLLocationCoordinate2D(latitude: 43.1990, longitude: -80.3790), CLLocationCoordinate2D(latitude: 43.1920, longitude: -80.3790), CLLocationCoordinate2D(latitude: 43.1920, longitude: -80.3870)], highlights: ["Grand River St N cobblestones", "Paris Museum", "historic storefronts"], notes: "The historic core of Paris. Named for the naturally occurring cobblestones used in 19th-century construction."),
+        ]
+    )
+
+    // MARK: - Toronto, ON
+
+    static let toronto = FeaturedCity(
+        id: "toronto",
+        name: "Toronto",
+        state: "ON",
+        emoji: "🍁",
+        tagline: "Distillery District, markets & the lake",
+        center: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832),
+        routes: [
+            HikeRoute(
+                id: UUID(),
+                name: "Distillery District & St. Lawrence Market",
+                description: "Walk from the Distillery District — 44 heritage buildings of Victorian industrial architecture converted into galleries, restaurants, and boutiques — through the old town to St. Lawrence Market, one of the world's great food markets.",
+                neighborhood: "Distillery District / Old Town",
+                difficulty: .easy,
+                supportedModes: [.walk, .run],
+                coordinates: [
+                    RouteCoordinate(latitude: 43.6503, longitude: -79.3590, elevationFt: 252),
+                    RouteCoordinate(latitude: 43.6495, longitude: -79.3620, elevationFt: 251),
+                    RouteCoordinate(latitude: 43.6490, longitude: -79.3660, elevationFt: 250),
+                    RouteCoordinate(latitude: 43.6487, longitude: -79.3717, elevationFt: 249),
+                    RouteCoordinate(latitude: 43.6475, longitude: -79.3730, elevationFt: 249),
+                ],
+                distanceMiles: 2.1,
+                elevationGainFt: 22,
+                estimatedMinutes: 44,
+                rating: 4.8,
+                reviewCount: 1640,
+                isEditorsPick: true,
+                tags: ["heritage", "market", "Victorian", "galleries"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .mixed, maxGradePercent: 2.0, notes: "Distillery has brick cobblestone — manageable. St. Lawrence Market fully accessible."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Distillery District — Mill St Corridor", shootingNotes: "The brick canyon of restored Gooderham & Worts buildings is incredible. Shoot down Mill St with a wide lens. Christmas market in December transforms the space with fairy lights.", coordinate: RouteCoordinate(latitude: 43.6503, longitude: -79.3590, elevationFt: 252), bestTimeOfDay: .bluehour, suggestedFocalLength: "16–35mm", tags: [.architecture, .industrial]),
+                ],
+                historicalPoints: [
+                    HistoricalPoint(id: UUID(), title: "Gooderham & Worts Distillery — 1832", era: "1832–1990", description: "Once the largest distillery in the British Empire, producing up to 2 million gallons of whisky annually. It operated for 150 years and is now the largest collection of Victorian industrial architecture in North America.", coordinate: RouteCoordinate(latitude: 43.6503, longitude: -79.3590, elevationFt: 252)),
+                ],
+                darkSafety: DarkSafetyRating(overallScore: 5, lightingQuality: 5, footTraffic: 5, communityNotes: "One of the most active pedestrian areas in Toronto at all hours. Extremely safe.", recommendedAfterDark: true)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Kensington Market & Chinatown",
+                description: "Kensington Market is Toronto at its most eclectic — vintage shops, Caribbean bakeries, cheesemongers, and murals packed into a few walkable blocks. Connect through Chinatown on Spadina for dim sum and bubble tea.",
+                neighborhood: "Kensington / Chinatown",
+                difficulty: .easy,
+                supportedModes: [.walk, .run],
+                coordinates: [
+                    RouteCoordinate(latitude: 43.6553, longitude: -79.4010, elevationFt: 290),
+                    RouteCoordinate(latitude: 43.6540, longitude: -79.3990, elevationFt: 289),
+                    RouteCoordinate(latitude: 43.6525, longitude: -79.3965, elevationFt: 288),
+                    RouteCoordinate(latitude: 43.6530, longitude: -79.3990, elevationFt: 289),
+                    RouteCoordinate(latitude: 43.6553, longitude: -79.4010, elevationFt: 290),
+                ],
+                distanceMiles: 1.6,
+                elevationGainFt: 18,
+                estimatedMinutes: 34,
+                rating: 4.7,
+                reviewCount: 892,
+                isEditorsPick: true,
+                tags: ["market", "murals", "eclectic", "food"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 2.0, notes: "Flat and fully paved. Very busy sidewalks on weekends."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "Augusta Ave Murals", shootingNotes: "Kensington's main drag is covered in murals and colourful storefronts. Shoot from the middle of the street (pedestrianised on weekends). Saturdays bring out vendors and musicians.", coordinate: RouteCoordinate(latitude: 43.6553, longitude: -79.4010, elevationFt: 290), bestTimeOfDay: .midday, suggestedFocalLength: "24–50mm", tags: [.streetArt, .portrait]),
+                ],
+                historicalPoints: [],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 4, footTraffic: 4, communityNotes: "Very busy even at night. Active restaurant and bar scene throughout. Very safe.", recommendedAfterDark: true)
+            ),
+            HikeRoute(
+                id: UUID(),
+                name: "Harbourfront & HTO Park",
+                description: "Toronto's lakefront walk from the foot of Bay St past the Harbourfront Centre to HTO Park and Sugar Beach — two urban beaches with white sand, pink umbrellas, and direct views of Toronto Island and Lake Ontario.",
+                neighborhood: "Waterfront",
+                difficulty: .easy,
+                supportedModes: [.walk, .run, .bike, .scooter],
+                coordinates: [
+                    RouteCoordinate(latitude: 43.6411, longitude: -79.3806, elevationFt: 246),
+                    RouteCoordinate(latitude: 43.6400, longitude: -79.3760, elevationFt: 246),
+                    RouteCoordinate(latitude: 43.6388, longitude: -79.3720, elevationFt: 246),
+                    RouteCoordinate(latitude: 43.6375, longitude: -79.3680, elevationFt: 246),
+                    RouteCoordinate(latitude: 43.6365, longitude: -79.3640, elevationFt: 246),
+                ],
+                distanceMiles: 2.5,
+                elevationGainFt: 8,
+                estimatedMinutes: 50,
+                rating: 4.6,
+                reviewCount: 1120,
+                isEditorsPick: false,
+                tags: ["lakefront", "beach", "flat", "waterfront"],
+                accessibility: AccessibilityInfo(isWheelchairFriendly: true, isStrollerFriendly: true, isLowImpact: true, hasStairSections: 0, surfaceType: .paved, maxGradePercent: 1.0, notes: "Completely flat paved waterfront path. Fully accessible throughout."),
+                shotPins: [
+                    ShotPin(id: UUID(), title: "CN Tower from HTO Park", shootingNotes: "Frame the CN Tower with the pink Muskoka chairs and white sand in the foreground. A 35mm lens gets both the chairs and the tower. Blue hour is electric when the tower changes colour.", coordinate: RouteCoordinate(latitude: 43.6388, longitude: -79.3720, elevationFt: 246), bestTimeOfDay: .bluehour, suggestedFocalLength: "24–50mm", tags: [.architecture, .water]),
+                ],
+                historicalPoints: [],
+                darkSafety: DarkSafetyRating(overallScore: 4, lightingQuality: 4, footTraffic: 3, communityNotes: "Harbourfront Centre active most evenings. Quieter east toward Sugar Beach at night.", recommendedAfterDark: true)
+            ),
+        ],
+        neighborhoods: [
+            WalkableNeighborhood(name: "Distillery District", walkScore: 96, coordinates: [CLLocationCoordinate2D(latitude: 43.6545, longitude: -79.3640), CLLocationCoordinate2D(latitude: 43.6545, longitude: -79.3520), CLLocationCoordinate2D(latitude: 43.6460, longitude: -79.3520), CLLocationCoordinate2D(latitude: 43.6460, longitude: -79.3640)], highlights: ["Gooderham & Worts heritage buildings", "Mill St galleries", "Christmas market", "CETO restaurant row"], notes: "44 restored Victorian industrial buildings — one of Toronto's most photogenic and walkable destinations."),
+            WalkableNeighborhood(name: "Kensington Market", walkScore: 97, coordinates: [CLLocationCoordinate2D(latitude: 43.6600, longitude: -79.4080), CLLocationCoordinate2D(latitude: 43.6600, longitude: -79.3930), CLLocationCoordinate2D(latitude: 43.6490, longitude: -79.3930), CLLocationCoordinate2D(latitude: 43.6490, longitude: -79.4080)], highlights: ["Augusta Ave", "Baldwin St", "vintage shops", "international food vendors"], notes: "The most eclectic square kilometre in Canada. Car-free on weekends. Dense, flat, and full of character."),
+            WalkableNeighborhood(name: "Queen West", walkScore: 95, coordinates: [CLLocationCoordinate2D(latitude: 43.6510, longitude: -79.4250), CLLocationCoordinate2D(latitude: 43.6510, longitude: -79.3920), CLLocationCoordinate2D(latitude: 43.6400, longitude: -79.3920), CLLocationCoordinate2D(latitude: 43.6400, longitude: -79.4250)], highlights: ["Queen St W galleries", "Trinity Bellwoods Park", "design studios", "late-night diners"], notes: "One of the coolest streets in North America (Vogue). Dense galleries, cafes, and independent fashion — all walkable."),
+            WalkableNeighborhood(name: "Harbourfront", walkScore: 88, coordinates: [CLLocationCoordinate2D(latitude: 43.6460, longitude: -79.4000), CLLocationCoordinate2D(latitude: 43.6460, longitude: -79.3580), CLLocationCoordinate2D(latitude: 43.6340, longitude: -79.3580), CLLocationCoordinate2D(latitude: 43.6340, longitude: -79.4000)], highlights: ["HTO Park urban beach", "Harbourfront Centre", "Sugar Beach", "ferry to Toronto Island"], notes: "Toronto's lake edge. Flat, paved, and great for walking with CN Tower as your compass."),
         ]
     )
 }

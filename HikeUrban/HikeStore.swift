@@ -18,6 +18,36 @@ struct CompletedHike: Identifiable, Codable {
     var mode: RouteMode
     var routeCoordinates: [RouteCoordinate]
     var mapSnapshotData: Data?
+    var notes: String
+
+    init(id: UUID, name: String, date: Date, distanceMiles: Double, elevationGainFt: Double,
+         durationSeconds: Int, floorsAscended: Int, steps: Int, mode: RouteMode,
+         routeCoordinates: [RouteCoordinate], mapSnapshotData: Data? = nil, notes: String = "") {
+        self.id = id; self.name = name; self.date = date
+        self.distanceMiles = distanceMiles; self.elevationGainFt = elevationGainFt
+        self.durationSeconds = durationSeconds; self.floorsAscended = floorsAscended
+        self.steps = steps; self.mode = mode
+        self.routeCoordinates = routeCoordinates; self.mapSnapshotData = mapSnapshotData
+        self.notes = notes
+    }
+
+    // Forward-compatible decoder: new fields fall back to defaults so old saved
+    // hikes (missing these keys) still load instead of silently wiping the list.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id              = try c.decode(UUID.self,   forKey: .id)
+        name            = try c.decode(String.self, forKey: .name)
+        date            = try c.decode(Date.self,   forKey: .date)
+        distanceMiles   = try c.decode(Double.self, forKey: .distanceMiles)
+        elevationGainFt = try c.decode(Double.self, forKey: .elevationGainFt)
+        durationSeconds = try c.decode(Int.self,    forKey: .durationSeconds)
+        floorsAscended  = try c.decodeIfPresent(Int.self,              forKey: .floorsAscended)  ?? 0
+        steps           = try c.decodeIfPresent(Int.self,              forKey: .steps)           ?? 0
+        mode            = try c.decodeIfPresent(RouteMode.self,        forKey: .mode)            ?? .walk
+        routeCoordinates = try c.decodeIfPresent([RouteCoordinate].self, forKey: .routeCoordinates) ?? []
+        mapSnapshotData = try c.decodeIfPresent(Data.self,             forKey: .mapSnapshotData)
+        notes           = try c.decodeIfPresent(String.self,           forKey: .notes)           ?? ""
+    }
 
     var durationFormatted: String {
         let h = durationSeconds / 3600
@@ -35,12 +65,42 @@ struct CompletedHike: Identifiable, Codable {
         guard let data = mapSnapshotData else { return nil }
         return UIImage(data: data)
     }
+
+    func gpxFileURL() -> URL? {
+        var lines = [
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+            "<gpx version=\"1.1\" creator=\"HikeUrban\" xmlns=\"http://www.topografix.com/GPX/1/1\">",
+            "  <trk>",
+            "    <name>\(name.xmlEscaped)</name>"
+        ]
+        if !notes.isEmpty {
+            lines.append("    <desc>\(notes.xmlEscaped)</desc>")
+        }
+        lines.append("    <trkseg>")
+        let df = ISO8601DateFormatter()
+        for (i, coord) in routeCoordinates.enumerated() {
+            let elapsed = routeCoordinates.count > 1
+                ? Double(i) * Double(durationSeconds) / Double(routeCoordinates.count - 1)
+                : 0
+            let timeStr = df.string(from: date.addingTimeInterval(elapsed))
+            let ele = String(format: "%.1f", coord.elevationFt / 3.28084)
+            lines += [
+                "      <trkpt lat=\"\(coord.latitude)\" lon=\"\(coord.longitude)\">",
+                "        <ele>\(ele)</ele>",
+                "        <time>\(timeStr)</time>",
+                "      </trkpt>"
+            ]
+        }
+        lines += ["    </trkseg>", "  </trk>", "</gpx>"]
+        return writeGPX(lines.joined(separator: "\n"), filename: name)
+    }
 }
 
 // MARK: - HikeStore
 
 class HikeStore: ObservableObject {
     @Published private(set) var completedHikes: [CompletedHike] = []
+    @Published var followRoute: HikeRoute?
 
     private let storageKey = "urban_hike_completed"
 
@@ -134,6 +194,12 @@ class HikeStore: ObservableObject {
 
     func delete(at offsets: IndexSet) {
         completedHikes.remove(atOffsets: offsets)
+        save()
+    }
+
+    func updateNotes(_ notes: String, for hikeID: UUID) {
+        guard let idx = completedHikes.firstIndex(where: { $0.id == hikeID }) else { return }
+        completedHikes[idx].notes = notes
         save()
     }
 

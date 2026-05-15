@@ -4,6 +4,7 @@ import MapKit
 // MARK: - Route Builder View
 
 struct RouteBuilderView: View {
+    @EnvironmentObject var cityStore: CityStore
     @State private var mode: BuilderMode = .draw
     @State private var waypoints: [CLLocationCoordinate2D] = []
     @State private var snappedCoords: [CLLocationCoordinate2D] = []   // road-following path
@@ -14,7 +15,7 @@ struct RouteBuilderView: View {
     @State private var selectedModes: Set<RouteMode> = [.walk]
     @State private var showSaveSheet = false
     @State private var showSavedConfirmation = false
-    @State private var selectedNeighborhood: DetroitNeighborhood?
+    @State private var selectedNeighborhood: WalkableNeighborhood?
     @State private var showNeighborhoodDetail = false
 
     @State private var position: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
@@ -62,7 +63,7 @@ struct RouteBuilderView: View {
                             }
 
                             if mode == .neighborhoods {
-                                ForEach(DetroitNeighborhood.all) { hood in
+                                ForEach(cityStore.selectedCity.neighborhoods) { hood in
                                     MapPolygon(coordinates: hood.coordinates)
                                         .foregroundStyle(
                                             hood.walkabilityColor.opacity(
@@ -157,7 +158,7 @@ struct RouteBuilderView: View {
                     NeighbourhoodLegend()
                 }
             }
-            .navigationTitle(mode == .draw ? "Draw a Route" : "Detroit Walkability")
+            .navigationTitle(mode == .draw ? "Draw a Route" : "\(cityStore.selectedCity.name) Walkability")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showSaveSheet) {
                 SaveRouteSheet(
@@ -167,6 +168,15 @@ struct RouteBuilderView: View {
                     modes: $selectedModes,
                     estimatedDistance: estimatedDistance,
                     onSave: {
+                        let route = HikeRoute.userCreated(
+                            name: routeName,
+                            coordinates: snappedCoords,
+                            distanceMiles: estimatedDistance,
+                            difficulty: selectedDifficulty,
+                            supportedModes: Array(selectedModes)
+                        )
+                        cityStore.addRoute(route, toCityWithID: cityStore.selectedCity.id)
+                        routeName = ""
                         showSavedConfirmation = true
                         waypoints.removeAll()
                         snappedCoords.removeAll()
@@ -372,141 +382,6 @@ struct SaveRouteSheet: View {
     }
 }
 
-// MARK: - Detroit Neighbourhood Data
-
-struct DetroitNeighborhood: Identifiable {
-    let id = UUID()
-    let name: String
-    let walkScore: Int
-    let coordinates: [CLLocationCoordinate2D]
-    let highlights: [String]
-    let notes: String
-
-    var center: CLLocationCoordinate2D {
-        let lat = coordinates.map(\.latitude).reduce(0, +)  / Double(coordinates.count)
-        let lon = coordinates.map(\.longitude).reduce(0, +) / Double(coordinates.count)
-        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
-    }
-
-    var walkabilityColor: Color {
-        switch walkScore {
-        case 80...100: return .green
-        case 60...79:  return .yellow
-        case 40...59:  return .orange
-        default:       return .red
-        }
-    }
-
-    var walkabilityLabel: String {
-        switch walkScore {
-        case 80...100: return "Walker's Paradise"
-        case 60...79:  return "Very Walkable"
-        case 40...59:  return "Walkable"
-        default:       return "Car-Dependent"
-        }
-    }
-
-    var walkabilityEmoji: String {
-        switch walkScore {
-        case 80...100: return "🟢"
-        case 60...79:  return "🟡"
-        case 40...59:  return "🟠"
-        default:       return "🔴"
-        }
-    }
-
-    static let all: [DetroitNeighborhood] = [
-        DetroitNeighborhood(
-            name: "Downtown", walkScore: 92,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3400, longitude: -83.0580),
-                CLLocationCoordinate2D(latitude: 42.3400, longitude: -83.0290),
-                CLLocationCoordinate2D(latitude: 42.3280, longitude: -83.0290),
-                CLLocationCoordinate2D(latitude: 42.3280, longitude: -83.0580),
-            ],
-            highlights: ["Hart Plaza", "Campus Martius", "Riverfront", "Woodward Ave"],
-            notes: "Detroit's most walkable area. Dense retail, dining, riverfront access, and major transit hub."
-        ),
-        DetroitNeighborhood(
-            name: "Midtown", walkScore: 85,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3720, longitude: -83.0780),
-                CLLocationCoordinate2D(latitude: 42.3720, longitude: -83.0540),
-                CLLocationCoordinate2D(latitude: 42.3480, longitude: -83.0540),
-                CLLocationCoordinate2D(latitude: 42.3480, longitude: -83.0780),
-            ],
-            highlights: ["DIA", "Wayne State", "MOCAD", "Cass Corridor"],
-            notes: "Arts, culture, and student energy. Well-connected grid with good lighting and foot traffic."
-        ),
-        DetroitNeighborhood(
-            name: "Corktown", walkScore: 78,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3390, longitude: -83.0850),
-                CLLocationCoordinate2D(latitude: 42.3390, longitude: -83.0640),
-                CLLocationCoordinate2D(latitude: 42.3260, longitude: -83.0640),
-                CLLocationCoordinate2D(latitude: 42.3260, longitude: -83.0850),
-            ],
-            highlights: ["Michigan Central Station", "Roosevelt Park", "Michigan Ave dining"],
-            notes: "Detroit's oldest neighbourhood is booming. Tight grid of brick streets, great cafes, Ford's new campus."
-        ),
-        DetroitNeighborhood(
-            name: "Eastern Market", walkScore: 81,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3560, longitude: -83.0470),
-                CLLocationCoordinate2D(latitude: 42.3560, longitude: -83.0290),
-                CLLocationCoordinate2D(latitude: 42.3420, longitude: -83.0290),
-                CLLocationCoordinate2D(latitude: 42.3420, longitude: -83.0470),
-            ],
-            highlights: ["Shed 5 murals", "Saturday market", "Gratiot corridor"],
-            notes: "One of Detroit's most vibrant daytime walkable areas. Best on Saturday when the market is running."
-        ),
-        DetroitNeighborhood(
-            name: "Rivertown", walkScore: 74,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3360, longitude: -83.0290),
-                CLLocationCoordinate2D(latitude: 42.3360, longitude: -83.0130),
-                CLLocationCoordinate2D(latitude: 42.3270, longitude: -83.0130),
-                CLLocationCoordinate2D(latitude: 42.3270, longitude: -83.0290),
-            ],
-            highlights: ["Riverwalk east extension", "Dequindre Cut south end", "Whiskey Island"],
-            notes: "A quieter stretch of the Riverwalk east of Downtown. Great for evening walks with river views."
-        ),
-        DetroitNeighborhood(
-            name: "New Center", walkScore: 63,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3860, longitude: -83.0960),
-                CLLocationCoordinate2D(latitude: 42.3860, longitude: -83.0720),
-                CLLocationCoordinate2D(latitude: 42.3700, longitude: -83.0720),
-                CLLocationCoordinate2D(latitude: 42.3700, longitude: -83.0960),
-            ],
-            highlights: ["Fisher Building", "GM Renaissance Center (nearby)", "Grand Boulevard"],
-            notes: "Grand architecture with Albert Kahn buildings throughout. Walkable on main corridors."
-        ),
-        DetroitNeighborhood(
-            name: "Greektown", walkScore: 88,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3380, longitude: -83.0430),
-                CLLocationCoordinate2D(latitude: 42.3380, longitude: -83.0280),
-                CLLocationCoordinate2D(latitude: 42.3290, longitude: -83.0280),
-                CLLocationCoordinate2D(latitude: 42.3290, longitude: -83.0430),
-            ],
-            highlights: ["Monroe Street", "Bricktown", "Little Caesars Arena nearby"],
-            notes: "Entertainment district with dense restaurants and nightlife. Very walkable evenings and weekends."
-        ),
-        DetroitNeighborhood(
-            name: "Mexicantown", walkScore: 66,
-            coordinates: [
-                CLLocationCoordinate2D(latitude: 42.3270, longitude: -83.1050),
-                CLLocationCoordinate2D(latitude: 42.3270, longitude: -83.0870),
-                CLLocationCoordinate2D(latitude: 42.3170, longitude: -83.0870),
-                CLLocationCoordinate2D(latitude: 42.3170, longitude: -83.1050),
-            ],
-            highlights: ["Vernor Highway restaurants", "Patton Park", "Ambassador Bridge views"],
-            notes: "Authentic neighbourhood with great food and culture. Walk score limited by distance from core."
-        ),
-    ]
-}
-
 // MARK: - Neighbourhood Legend
 
 struct NeighbourhoodLegend: View {
@@ -533,7 +408,7 @@ struct NeighbourhoodLegend: View {
 // MARK: - Neighbourhood Detail Sheet
 
 struct NeighbourhoodDetailSheet: View {
-    let neighbourhood: DetroitNeighborhood
+    let neighbourhood: WalkableNeighborhood
     @Environment(\.dismiss) var dismiss
 
     var body: some View {

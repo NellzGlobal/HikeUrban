@@ -181,6 +181,9 @@ struct AvatarView: View {
 
 struct HikePathCard: View {
     let hike: CompletedHike
+    @EnvironmentObject var hikeStore: HikeStore
+    @State private var gpxURL: URL?
+    @State private var showNotesEditor = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -242,6 +245,39 @@ struct HikePathCard: View {
                         MiniStat(value: "\(hike.floorsAscended)", unit: "floors")
                     }
                     Spacer()
+
+                    if let url = gpxURL {
+                        ShareLink(
+                            item: url,
+                            preview: SharePreview("\(hike.name).gpx", icon: Image(systemName: "map"))
+                        ) {
+                            Label("GPX", systemImage: "square.and.arrow.up")
+                                .font(.caption2)
+                                .foregroundColor(.orange)
+                        }
+                    }
+                }
+
+                // Notes row
+                HStack(alignment: .top, spacing: 6) {
+                    if hike.notes.isEmpty {
+                        Text("Add notes…")
+                            .font(.caption)
+                            .foregroundColor(.secondary.opacity(0.6))
+                    } else {
+                        Text(hike.notes)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                    }
+                    Spacer()
+                    Button {
+                        showNotesEditor = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
                 }
             }
             .padding(.horizontal, 12)
@@ -250,6 +286,13 @@ struct HikePathCard: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 2)
+        .onAppear { gpxURL = hike.gpxFileURL() }
+        .sheet(isPresented: $showNotesEditor) {
+            NotesEditorSheet(hike: hike) { saved in
+                hikeStore.updateNotes(saved, for: hike.id)
+                gpxURL = hike.gpxFileURL()
+            }
+        }
     }
 }
 
@@ -334,6 +377,62 @@ struct EditProfileSheet: View {
                     if let data = try? await newItem?.loadTransferable(type: Data.self) {
                         await MainActor.run { profile.profileImageData = data }
                     }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Notes Editor Sheet
+
+struct NotesEditorSheet: View {
+    let hike: CompletedHike
+    let onSave: (String) -> Void
+    @Environment(\.dismiss) var dismiss
+    @State private var text: String
+
+    init(hike: CompletedHike, onSave: @escaping (String) -> Void) {
+        self.hike = hike
+        self.onSave = onSave
+        _text = State(initialValue: hike.notes)
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(hike.name)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
+
+                TextEditor(text: $text)
+                    .font(.body)
+                    .padding(8)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    .frame(minHeight: 140)
+
+                Text("Notes are saved with the hike and included in GPX exports.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
+
+                Spacer()
+            }
+            .padding(.top)
+            .navigationTitle("Hike Notes")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        onSave(text)
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
                 }
             }
         }

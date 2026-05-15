@@ -18,9 +18,18 @@ struct RecordView: View {
                     .ignoresSafeArea(edges: .top)
 
                 VStack {
+                    // Following banner
+                    if let follow = hikeStore.followRoute {
+                        FollowingRouteBanner(route: follow) {
+                            hikeStore.followRoute = nil
+                        }
+                        .padding(.top, 8)
+                        .padding(.horizontal)
+                    }
+
                     if !locationManager.isRecording && locationManager.currentSession == nil {
                         ModePickerBar(selectedMode: $selectedMode)
-                            .padding(.top, 8)
+                            .padding(.top, hikeStore.followRoute == nil ? 8 : 4)
                             .padding(.horizontal)
                     }
 
@@ -40,6 +49,7 @@ struct RecordView: View {
                             Button {
                                 staircaseManager.stopCounting()
                                 locationManager.discardSession()
+                                hikeStore.followRoute = nil
                             } label: {
                                 Image(systemName: "xmark")
                                     .font(.title2)
@@ -55,6 +65,7 @@ struct RecordView: View {
                                 staircaseManager.stopCounting()
                                 hikeName = defaultHikeName
                                 showSaveSheet = true
+                                hikeStore.followRoute = nil
                             } label: {
                                 Image(systemName: "stop.fill")
                                     .font(.largeTitle)
@@ -126,6 +137,44 @@ struct RecordView: View {
     }
 }
 
+// MARK: - Following Route Banner
+
+struct FollowingRouteBanner: View {
+    let route: HikeRoute
+    let onCancel: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "figure.hiking")
+                .foregroundColor(.blue)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Following Route")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Text(route.name)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Text(String(format: "%.1f mi", route.distanceMiles))
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Button(action: onCancel) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.secondary)
+                    .font(.title3)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial)
+        .cornerRadius(12)
+        .shadow(radius: 3)
+    }
+}
+
 // MARK: - Mode Picker Bar
 
 struct ModePickerBar: View {
@@ -162,12 +211,41 @@ struct ModePickerBar: View {
 
 struct LiveMapView: View {
     @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var hikeStore: HikeStore
 
     @State private var position: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
 
     var body: some View {
         Map(position: $position) {
             UserAnnotation()
+
+            // Reference route — the planned path to follow
+            if let follow = hikeStore.followRoute {
+                let coords = follow.clCoordinates
+                MapPolyline(coordinates: coords)
+                    .stroke(Color.blue.opacity(0.5), lineWidth: 4)
+                if let start = coords.first {
+                    Annotation("Start", coordinate: start) {
+                        Image(systemName: "flag.fill")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(6)
+                            .background(Color.green)
+                            .clipShape(Circle())
+                    }
+                }
+                if let end = coords.last, coords.count > 1 {
+                    Annotation("End", coordinate: end) {
+                        Image(systemName: "flag.checkered")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(6)
+                            .background(Color.blue)
+                            .clipShape(Circle())
+                    }
+                }
+            }
+
             // Raw GPS path — shows immediately, faint, covers the unsnapped leading segment
             if let session = locationManager.currentSession, session.locations.count > 1 {
                 MapPolyline(coordinates: session.locations.map(\.coordinate))
@@ -177,6 +255,15 @@ struct LiveMapView: View {
             if locationManager.snappedPath.count > 1 {
                 MapPolyline(coordinates: locationManager.snappedPath)
                     .stroke(Color.orange, lineWidth: 4)
+            }
+        }
+        .onAppear {
+            if let follow = hikeStore.followRoute,
+               let center = follow.clCoordinates.first {
+                position = .region(MKCoordinateRegion(
+                    center: center,
+                    span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
+                ))
             }
         }
         .onChange(of: locationManager.location) { _, newLoc in
